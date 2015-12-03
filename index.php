@@ -1,59 +1,34 @@
-<!DOCTYPE html>
-<html lang="de">
-    <head>
-        <meta charset="UTF-8">
-        <title>Tracemap</title>
+<?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
-        <link rel="stylesheet" href="css/style.css">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+require 'vendor/autoload.php';
+//include 'lib/mysql.php';
 
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-        <script src="js/app.js"></script>
-    </head>
-    <body>
+//$db = new Database();
 
-        <nav>
-            <ul>
-                <li>
-                    <a href="#">Tracemap</a>
-                </li>
-                <li>
-                    <a href="#">Stats</a>
-                </li>
-                <li>
-                    <a href="#">About</a>
-                </li>
-            </ul>
-        </nav>
+$app = new \Slim\Slim();
+$app->get('/', function () use ($app) {
+  $app->render('index.php', array(
+		'page_title' => "Tracemap"
+  ));
+});
 
-        <header>
-            <hgroup>
-                <h1>Tracemap</h1>
-                <h2>We traced {{ 100 }} Routes so far.</h2>
-            </hgroup>
-        </header>
+$app->get('/tracemap/:url', function ($url) {
+    echo "Looking up $url";
+    exec('traceroute '.$url.' 2>&1', $out, $code);
+    if ($code) {
+        die("An error occurred while trying to traceroute: " . join("\n", $out));
+    }
+    print_r($out);
+});
 
-        <main>
+$app->get('/stats/', function ($name) {
+    echo "Stats";
+});
 
-            <section id="tm-search">
-                <form class="tm-search__form">
-                    <input type="text" placeholder="Destination URL">
-                    <button>Trace it!</button>
-                </form>
-            </section>
-
-            <section id="tm-google-map">
-                <figure>
-                    {{ Insert Google Map here }}
-                </figure>
-            </section>
-
-        </main>
-
-        <footer>
-            Copyright by
-        </footer>
-
-    </body>
-</html>
+$app->get('/about/', function () {
+    echo "About";
+});
+$app->run();
