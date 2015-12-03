@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <title>Tracemap</title>
 
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
         <link rel="stylesheet" href="css/style.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 
@@ -15,13 +16,13 @@
         <nav>
             <ul>
                 <li>
-                    Tracemap
+                    <a href="#">Tracemap</a>
                 </li>
                 <li>
-                    Stats
+                    <a href="#">Stats</a>
                 </li>
                 <li>
-                    About
+                    <a href="#">About</a>
                 </li>
             </ul>
         </nav>
@@ -29,20 +30,20 @@
         <header>
             <hgroup>
                 <h1>Tracemap</h1>
-                <h2>We traced 100 Routes so far.</h2>
+                <h2>We traced {{ 100 }} Routes so far.</h2>
             </hgroup>
         </header>
 
         <main>
 
-            <section>
-                <form>
+            <section id="tm-search">
+                <form class="tm-search__form">
                     <input type="text" placeholder="Destination URL">
                     <button>Trace it!</button>
                 </form>
             </section>
 
-            <section>
+            <section id="tm-google-map">
                 <figure>
                     {{ Insert Google Map here }}
                 </figure>
