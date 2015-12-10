@@ -4,8 +4,8 @@
         <meta charset="UTF-8">
         <title><?php echo $this->data['page_title']; ?></title>
 
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
-        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="./css/normalize.css">
+        <link rel="stylesheet" href="./css/style.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
@@ -15,14 +15,14 @@
 
         <nav>
             <ul>
-                <li>
-                    <a href="#">Tracemap</a>
+                <li class="selected">
+                    <a href="./">Tracemap</a>
                 </li>
                 <li>
-                    <a href="#">Stats</a>
+                    <a href="./stats">Stats</a>
                 </li>
                 <li>
-                    <a href="#">About</a>
+                    <a href="./about">About</a>
                 </li>
             </ul>
         </nav>

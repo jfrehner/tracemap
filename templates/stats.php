@@ -4,8 +4,8 @@
         <meta charset="UTF-8">
         <title>Tracemap</title>
 
-        <link rel="stylesheet" href="css/normalize.css">
-        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="./css/normalize.css">
+        <link rel="stylesheet" href="./css/style.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
@@ -16,13 +16,13 @@
         <nav>
             <ul>
                 <li>
-                    <a href="./index.php"><i class="fa"></i>Tracemap</a>
+                    <a href="./"><i class="fa"></i>Tracemap</a>
                 </li>
                 <li class="selected">
-                    <a href="#"><i class="fa"></i>Stats</a>
+                    <a href="./stats"><i class="fa"></i>Stats</a>
                 </li>
                 <li>
-                    <a href="./about.php"><i class="fa"></i>About</a>
+                    <a href="./about"><i class="fa"></i>About</a>
                 </li>
             </ul>
         </nav>
