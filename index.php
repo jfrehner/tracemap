@@ -3,6 +3,8 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+define( 'TMPL', './templates/');
+
 require 'vendor/autoload.php';
 //include 'lib/mysql.php';
 
@@ -24,11 +26,16 @@ $app->get('/tracemap/:url', function ($url) {
     print_r($out);
 });
 
-$app->get('/stats/', function ($name) {
-    echo "Stats";
+$app->get('/stats/', function () use ($app) {
+    $app->render('stats.php', array(
+        'page_title' => 'Statistics'
+    ));
 });
 
-$app->get('/about/', function () {
-    echo "About";
+$app->get('/about', function () {
+    $app->render('about.php', array(
+        'page_title' => 'About'
+    ));
 });
 $app->run();
+?>
