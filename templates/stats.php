@@ -16,13 +16,13 @@
         <nav>
             <ul>
                 <li>
-                    <a href="./"><i class="fa"></i>Tracemap</a>
+                    <a href="./"><i class="fa fa-search"></i>Tracemap</a>
                 </li>
                 <li class="selected">
-                    <a href="./stats"><i class="fa"></i>Stats</a>
+                    <a href="./stats"><i class="fa fa-bar-chart"></i>Stats</a>
                 </li>
                 <li>
-                    <a href="./about"><i class="fa"></i>About</a>
+                    <a href="./about"><i class="fa fa-info"></i>About</a>
                 </li>
             </ul>
         </nav>
@@ -49,37 +49,22 @@
                 </h3>
                 <table>
                     <thead>
-                        <td>
-                            Stat
-                        </td>
-                        <td>
-                            Value
-                        </td>
+                        <td>Stat</td>
+                        <td>Value</td>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>
-                                Number of Hops
+                            <td>Number of Hops
                             </td>
-                            <td>
-                                993
-                            </td>
+                            <td>993</td>
                         </tr>
                         <tr>
-                            <td>
-                                Number of traced URLs
-                            </td>
-                            <td>
-                                100
-                            </td>
+                            <td>Number of traced URLs</td>
+                            <td>100</td>
                         </tr>
                         <tr>
-                            <td>
-                                Average time to destination
-                            </td>
-                            <td>
-                                0.4s
-                            </td>
+                            <td>Average time to destination</td>
+                            <td>0.4s</td>
                         </tr>
                     </tbody>
                 </table>

@@ -38,7 +38,7 @@ h1 {
 
 h2 {
     text-align: center;
-    margin-top: 10px;
+    margin-top: 30px;
 }
 
 h3 {
@@ -47,6 +47,10 @@ h3 {
 
 p {
 
+}
+
+i.fa {
+    padding-right: 10px;
 }
 
 
@@ -193,7 +197,7 @@ input:hover {
     border-bottom: none;
 }
 
-#tm-google-map figure {
+#tm-google-map div {
     display: block;
     margin: 0 auto;
     width: 80%;

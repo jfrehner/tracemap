@@ -18,12 +18,13 @@ $app->get('/', function () use ($app) {
 });
 
 $app->get('/tracemap/:url', function ($url) {
-    echo "Looking up $url";
+
     exec('traceroute '.$url.' 2>&1', $out, $code);
     if ($code) {
         die("An error occurred while trying to traceroute: " . join("\n", $out));
     }
-    print_r($out);
+
+    echo(json_encode($out));
 });
 
 $app->get('/stats/', function () use ($app) {
