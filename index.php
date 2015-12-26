@@ -17,9 +17,17 @@ $app->get('/', function () use ($app) {
   ));
 });
 
+$app->get('/tracemap/ping/:url', function ($url) {
+
+    //$out = file_get_contents('http://www.freegeoip.net/json/' . $url);
+    $out = file_get_contents('http://ip-api.com/json/' . $url);
+
+    echo($out);
+});
+
 $app->get('/tracemap/:url', function ($url) {
 
-    exec('traceroute '.$url.' 2>&1', $out, $code);
+    exec('traceroute -I '.$url.' 2>&1', $out, $code);
     if ($code) {
         die("An error occurred while trying to traceroute: " . join("\n", $out));
     }

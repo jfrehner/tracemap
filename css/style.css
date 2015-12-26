@@ -197,12 +197,17 @@ input:hover {
     border-bottom: none;
 }
 
-#tm-google-map div {
-    display: block;
+#tm-map-initial {
     margin: 0 auto;
     width: 80%;
     height: 500px;
     background-color: #ccc;
+    border: 1px solid black;
+}
+
+#tm-data {
+    display: none;
+    list-style-type: none;
 }
 
 
