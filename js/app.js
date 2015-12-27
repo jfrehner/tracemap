@@ -61,8 +61,11 @@ $(document).ready(function() {
                             $('#tm-data ul').append("<li>Unable to get hop…</li>");
                         } else {
                             var line = data[key];
+                            var parts = line.trim().split(' ');
+                            console.log(parts[2]);
                             ip = line.substr(line.indexOf('(') + 1, line.indexOf(')') - line.indexOf('(') - 1);
-                            getIpLocation(ip);
+                            // Using the hostname to get location info (because we want to save hostname and ip to the db)
+                            getIpLocation(parts[2]);
                             $('#tm-data ul').append("<li>" + key + " " + data[key] + "</li>");
                         }
                     }
