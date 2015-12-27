@@ -11,6 +11,20 @@ $(document).ready(function() {
 
     initMap();
 
+    function isUrlValid(url) {
+        // Remove https:// and http://
+        url = url.replace('https://', '').replace('http://', '');
+        // Regex from http://stackoverflow.com/questions/2723140/validating-url-with-jquery-without-the-validate-plugin
+        var valid = url.indexOf('/') === -1;
+        valid &= /^(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i.test(url);
+        return valid;
+    }
+
+    $('#tm-search').on('keyup', function(e) {
+      //TODO: Add debounce
+      var url = $('#tm-search input').val();
+      // isUrlValid(url); TODO: Display message when url is invalid
+    });
 
     $('#tm-search button').on('click', function(e) {
 
@@ -24,15 +38,17 @@ $(document).ready(function() {
 
         var url = $('#tm-search input').val();
 
+        url = url.replace('https://', '').replace('http://', '');
+
         $(this).html('Loading Data…');
         $('#tm-data ul').html('');
-        $('#tm-data h2').html('Tracemap-Stats for Destination ' + url.replace('./tracemap/', ''));
+        $('#tm-data h2').html('Tracemap-Stats for Destination ' + url);
 
         getIpLocation(url, adjustMapBounds);
 
         $.ajax({
             method: "GET",
-            url: "./tracemap/" + url,
+            url: "./api/" + url,
             success: function(data) {
                 var ip = '';
                 data = $.parseJSON(data);
@@ -67,7 +83,7 @@ $(document).ready(function() {
         url = url.replace('www.', '');
         $.ajax({
             method: "GET",
-            url: "./tracemap/ping/" + url,
+            url: "./api/ping/" + url,
             success: function(data) {
                 data = $.parseJSON(data);
 

@@ -11,13 +11,29 @@ require 'vendor/autoload.php';
 //$db = new Database();
 
 $app = new \Slim\Slim();
+
 $app->get('/', function () use ($app) {
   $app->render('index.php', array(
 		'page_title' => "Tracemap"
   ));
 });
 
-$app->get('/tracemap/ping/:url', function ($url) {
+$app->get('/stats/', function () use ($app) {
+    $app->render('stats.php', array(
+        'page_title' => 'Statistics'
+    ));
+});
+
+$app->get('/about/', function () use ($app) {
+    $app->render('about.php', array(
+        'page_title' => 'About'
+    ));
+});
+
+/**
+ * API CODE
+ */
+$app->get('/api/ping/:url', function ($url) {
 
     //$out = file_get_contents('http://www.freegeoip.net/json/' . $url);
     $out = file_get_contents('http://ip-api.com/json/' . $url);
@@ -25,7 +41,7 @@ $app->get('/tracemap/ping/:url', function ($url) {
     echo($out);
 });
 
-$app->get('/tracemap/:url', function ($url) {
+$app->get('/api/:url', function ($url) {
 
     exec('traceroute -I '.$url.' 2>&1', $out, $code);
     if ($code) {
@@ -35,16 +51,5 @@ $app->get('/tracemap/:url', function ($url) {
     echo(json_encode($out));
 });
 
-$app->get('/stats/', function () use ($app) {
-    $app->render('stats.php', array(
-        'page_title' => 'Statistics'
-    ));
-});
-
-$app->get('/about', function () {
-    $app->render('about.php', array(
-        'page_title' => 'About'
-    ));
-});
 $app->run();
 ?>
