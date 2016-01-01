@@ -68,10 +68,35 @@ class Database {
   }
 
   public function getNumberOfTraces() {
-    $result = $this->db->query("SELECT * FROM search");
+    $result = $this->db->query("SELECT COUNT(*) FROM search");
     while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
       $data[] = $row;
     }
     return $data;
   }
+
+  public function getNumberOfHops() {
+    $result = $this->db->query("SELECT COUNT(*) FROM hops");
+    while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+      $data[] = $row;
+    }
+    return $data;
+  }
+
+  public function getAverageHopTime() {
+    $result = $this->db->query("SELECT AVG(rtt1) as AVG1, AVG(rtt2) as AVG2, AVG(rtt3) as AVG3 FROM `hops` WHERE hop_number > 0");
+    while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+      $data[] = $row;
+    }
+    return $data;
+  }
+
+  public function getTopTraces() {
+    $result = $this->db->query("SELECT *, count(url) as traceCount FROM `search` GROUP BY url ORDER BY traceCount DESC LIMIT 10");
+    while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+      $data[] = $row;
+    }
+    return $data;
+  }
+
 }

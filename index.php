@@ -58,14 +58,24 @@ $app->get('/api/:url', function ($url) {
     echo(json_encode($out));
 });
 
-$app->get('/api/info/numberOfTraces', function () {
+$app->get('/api/info/basic', function () {
     $db = new Database();
-    $result = $db->getNumberOfTraces();
+    $timesResults = $db->getAverageHopTime();
+    $time = ($timesResults[0]['AVG1'] + $timesResults[0]['AVG2'] + $timesResults[0]['AVG3']) / 3;
 
     $out = array();
-    $out['count'] = count($result);
+    $out['numTraces'] = $db->getNumberOfTraces()[0]['COUNT(*)'];
+    $out['numHops'] = $db->getNumberOfHops()[0]['COUNT(*)'];
+    $out['hopTime'] = $time;
 
     echo(json_encode($out));
+});
+
+$app->get('/api/info/topTraces', function () {
+    $db = new Database();
+    $results = $db->getTopTraces();
+
+    echo(json_encode($results));
 });
 
 $app->run();

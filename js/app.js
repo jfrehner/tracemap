@@ -11,22 +11,38 @@ $(document).ready(function() {
 
 
 
-    function getNumberOfTraces() {
+    function getInfo() {
       $.ajax({
           method: "GET",
-          url: "./api/info/numberOfTraces",
+          url: "./api/info/basic",
           success: function(data) {
               data = $.parseJSON(data);
+              $('.numberOfTraces').html(data.numTraces);
+              $('.numberOfHops').html(data.numHops);
+              $('.averageHopTime').html(data.hopTime);
+          }
+      });
+    }
 
-              var count = data.count;
-
-              $('#numberOfTraces').html(count);
+    function getTopTraces() {
+      $.ajax({
+          method: "GET",
+          url: "./api/info/topTraces",
+          success: function(data) {
+              data = $.parseJSON(data);
+              for(var i = 0; i < data.length; i++) {
+                $('#topTraces').append("<tr>" +
+                    "<td>" + data[i].url + "</td>" +
+                    "<td>" + data[i].traceCount + "</td>" +
+                "</tr>");
+              }
           }
       });
     }
 
     initMap();
-    getNumberOfTraces();
+    getInfo(); // TODO: Call only when info is needed
+    getTopTraces();
 
     function isUrlValid(url) {
         // Remove https:// and http://

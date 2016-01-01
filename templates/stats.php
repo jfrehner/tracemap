@@ -30,7 +30,7 @@
         <header>
             <hgroup>
                 <h1>Tracemap</h1>
-                <h2>We traced {{ 100 }} URLs over {{ 435 }} Hops.</h2>
+                <h2>We traced <span class="numberOfTraces"></span> URLs over <span class="numberOfHops"></span> Hops.</h2>
             </hgroup>
         </header>
 
@@ -54,17 +54,16 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Number of Hops
-                            </td>
-                            <td>993</td>
+                            <td>Number of traced URLs</td>
+                            <td class="numberOfTraces"></td>
                         </tr>
                         <tr>
-                            <td>Number of traced URLs</td>
-                            <td>100</td>
+                            <td>Number of Hops</td>
+                            <td class="numberOfHops"></td>
                         </tr>
                         <tr>
                             <td>Average time to destination</td>
-                            <td>0.4s</td>
+                            <td class="averageHopTime"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -76,47 +75,7 @@
                         <td>URL</td>
                         <td>Amounts traced</td>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>www.google.ch</td>
-                            <td>20</td>
-                        </tr>
-                        <tr>
-                            <td>www.google.ch</td>
-                            <td>20</td>
-                        </tr>
-                        <tr>
-                            <td>www.google.ch</td>
-                            <td>20</td>
-                        </tr>
-                        <tr>
-                            <td>www.google.ch</td>
-                            <td>20</td>
-                        </tr>
-                        <tr>
-                            <td>www.google.ch</td>
-                            <td>20</td>
-                        </tr>
-                        <tr>
-                            <td>www.google.ch</td>
-                            <td>20</td>
-                        </tr>
-                        <tr>
-                            <td>www.google.ch</td>
-                            <td>20</td>
-                        </tr>
-                        <tr>
-                            <td>www.google.ch</td>
-                            <td>20</td>
-                        </tr>
-                        <tr>
-                            <td>www.google.ch</td>
-                            <td>20</td>
-                        </tr>
-                        <tr>
-                            <td>www.google.ch</td>
-                            <td>20</td>
-                        </tr>
+                    <tbody id="topTraces">
                     </tbody>
                 </table>
             </section>
