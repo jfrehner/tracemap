@@ -33,15 +33,19 @@ $app->get('/about/', function () use ($app) {
  */
 $app->get('/api/ping/:url', function ($url) {
 
-    //TODO: Add cache
-
-    //$out = file_get_contents('http://www.freegeoip.net/json/' . $url);
-    $out = file_get_contents('http://ip-api.com/json/' . $url);
-
     $db = new Database();
-    $db->insertIPLocation($url, $out);
 
-    echo($out);
+    $result = $db->getCachedURL($url); //TODO: Hostname can have multiple ips
+
+    if (count($result) === 0) {
+      //$out = file_get_contents('http://www.freegeoip.net/json/' . $url);
+      $out = file_get_contents('http://ip-api.com/json/' . $url);
+
+      $db->insertIPLocation($url, $out);
+      $result = $db->getCachedURL($url);
+    }
+
+    echo(json_encode($result));
 });
 
 $app->get('/api/:url', function ($url) {

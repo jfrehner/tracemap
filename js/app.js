@@ -95,7 +95,6 @@ $(document).ready(function() {
                         } else {
                             var line = data[key];
                             var parts = line.trim().split(' ');
-                            console.log(parts[2]);
                             ip = line.substr(line.indexOf('(') + 1, line.indexOf(')') - line.indexOf('(') - 1);
                             // Using the hostname to get location info (because we want to save hostname and ip to the db)
                             var infobox = generateInfoBoxText(parts[2], ip, []);
@@ -124,8 +123,8 @@ $(document).ready(function() {
             success: function(data) {
                 data = $.parseJSON(data);
 
-                var destLong = data.lon;
-                var destLat = data.lat;
+                var destLong = data.longitude;
+                var destLat = data.latitude;
                 var destMarker;
 
                 destMarker = { latitude: destLat, longitude: destLong, title: 'Destination'};
@@ -163,7 +162,6 @@ $(document).ready(function() {
           stringHops += '<p>'+ (i+1) +': ' + hops[i] + '</p>'
         }
       }
-      console.log(stringHops)
 
       var string = '<div id="content">'+
         '<h1 id="firstHeading" class="firstHeading">'+ hostname +'</h1>'+
@@ -201,7 +199,6 @@ $(document).ready(function() {
         if(drawLine) {
             var destCoord = coords.splice(1, 1);
             coords.push(destCoord[0]);
-            console.log(coords);
             path = new google.maps.Polyline({
                 path: coords,
                 map: map,

@@ -62,9 +62,26 @@ class Database {
   public function insertIPLocation($hostname, $out) {
     $result = json_decode($out, true);
 
-    $result = $this->db->query('INSERT INTO ip_location_cache (ip, hostname, asn, city, country, country_code, isp, org, region, region_name, timezone, zip, longitude, latitude)
-    VALUES ("'.$result['query'].'", "'.$hostname.'", "'.$result['as'].'", "'.$result['city'].'", "'.$result['country'].'", "'.$result['countryCode'].'", "'.$result['isp'].'", "'.$result['org'].'",
-    "'.$result['region'].'", "'.$result['regionName'].'", "'.$result['timezone'].'", "'.$result['zip'].'", "'.$result['lat'].'", "'.$result['lon'].'")');
+    if($result['status'] !== 'fail') {
+      $result = $this->db->query('INSERT INTO ip_location_cache (ip, hostname, asn, city, country, country_code, isp, org, region, region_name, timezone, zip, longitude, latitude)
+      VALUES ("'.$result['query'].'", "'.$hostname.'", "'.$result['as'].'", "'.$result['city'].'", "'.$result['country'].'", "'.$result['countryCode'].'", "'.$result['isp'].'", "'.$result['org'].'",
+      "'.$result['region'].'", "'.$result['regionName'].'", "'.$result['timezone'].'", "'.$result['zip'].'", "'.$result['lon'].'", "'.$result['lat'].'")');
+    } else {
+      // TODO Handle errors
+    }
+  }
+
+  public function getCachedURL($url) {
+    $data = [];
+    $result = $this->db->query("SELECT * FROM ip_location_cache WHERE hostname LIKE '".$url."'");
+    while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+      $data[] = $row;
+    }
+    if (count($data) > 0) {
+      return $data[0];
+    } else {
+      return [];
+    }
   }
 
   public function getNumberOfTraces() {
