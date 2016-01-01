@@ -31,7 +31,7 @@
         <header>
             <hgroup>
                 <h1><?php echo $this->data['page_title']; ?></h1>
-                <h2>We traced <span id="numberOfTraces"></span> Routes so far.</h2>
+                <h2>We traced <span class="numberOfTraces"></span> Routes so far.</h2>
             </hgroup>
         </header>
 
