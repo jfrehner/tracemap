@@ -9,7 +9,24 @@ $(document).ready(function() {
     var path;
 
 
+
+
+    function getNumberOfTraces() {
+      $.ajax({
+          method: "GET",
+          url: "./api/info/numberOfTraces",
+          success: function(data) {
+              data = $.parseJSON(data);
+
+              var count = data.count;
+
+              $('#numberOfTraces').html(count);
+          }
+      });
+    }
+
     initMap();
+    getNumberOfTraces();
 
     function isUrlValid(url) {
         // Remove https:// and http://
@@ -44,7 +61,7 @@ $(document).ready(function() {
         $('#tm-data ul').html('');
         $('#tm-data h2').html('Tracemap-Stats for Destination ' + url);
 
-        getIpLocation(url, adjustMapBounds);
+        getIpLocation({url: url}, adjustMapBounds);
 
         $.ajax({
             method: "GET",
@@ -65,7 +82,8 @@ $(document).ready(function() {
                             console.log(parts[2]);
                             ip = line.substr(line.indexOf('(') + 1, line.indexOf(')') - line.indexOf('(') - 1);
                             // Using the hostname to get location info (because we want to save hostname and ip to the db)
-                            getIpLocation(parts[2]);
+                            var infobox = generateInfoBoxText(parts[2], ip, []);
+                            getIpLocation({url: parts[2], infobox: infobox});
                             $('#tm-data ul').append("<li>" + key + " " + data[key] + "</li>");
                         }
                     }
@@ -75,15 +93,15 @@ $(document).ready(function() {
                 //
                 //AdjustMapBounds can not be added as a callback to every getIpLocation-call (see Line 37)
                 //because this will lead to a stackoverflow. JS is giving a "Too many recursion error".
-                getIpLocation(ip, adjustMapBounds, true);
+                getIpLocation({url: ip}, adjustMapBounds, true);
                 $('#tm-data').css("display", "block");
             }
         });
     });
 
 
-    function getIpLocation(url, callback, drawLine) {
-        url = url.replace('www.', '');
+    function getIpLocation(info, callback, drawLine) {
+        var url = info.url.replace('www.', '');
         $.ajax({
             method: "GET",
             url: "./api/ping/" + url,
@@ -96,7 +114,7 @@ $(document).ready(function() {
 
                 destMarker = { latitude: destLat, longitude: destLong, title: 'Destination'};
 
-                addMarker(destMarker, callback, drawLine);
+                addMarker(destMarker, info.infobox, callback, drawLine);
             }
         });
     }
@@ -117,20 +135,50 @@ $(document).ready(function() {
             startMarker = { latitude: start.coords.latitude, longitude: start.coords.longitude, title: 'Start'};
             map = new google.maps.Map(document.getElementById("tm-map-initial"), {center: new google.maps.LatLng(start.coords.latitude, start.coords.longitude), zoom: 15});
 
-            addMarker(startMarker);
+            addMarker(startMarker, generateInfoBoxText('Our Server', ''));
             map.getZoom();
         });
     }
 
+    function generateInfoBoxText(hostname, ip, hops) {
+      var stringHops = '';
+      if (hops) {
+        for(var i = 0; i < hops.length; i++) {
+          stringHops += '<p>'+ (i+1) +': ' + hops[i] + '</p>'
+        }
+      }
+      console.log(stringHops)
 
-    function addMarker(newMarker, callback, drawLine) {
+      var string = '<div id="content">'+
+        '<h1 id="firstHeading" class="firstHeading">'+ hostname +'</h1>'+
+        '<div id="bodyContent">'+
+          '<p>'+ ip +'</p>' +
+        stringHops +
+        '</div>'+
+      '</div>';
+      return string;
+    }
+
+    function addMarker(newMarker, contentString, callback, drawLine) {
         if(!isNaN(newMarker.latitude) && !isNaN(newMarker.longitude)) {
             var pos = new google.maps.LatLng(newMarker.latitude, newMarker.longitude);
-            markers.push(new google.maps.Marker({
+            var myNewMarker = new google.maps.Marker({
                 position: pos,
                 map: map,
                 title: newMarker.title
-            }));
+            });
+
+            if (contentString) {
+              var infowindow = new google.maps.InfoWindow({
+                content: contentString
+              });
+
+              myNewMarker.addListener('click', function() {
+                infowindow.open(map, myNewMarker);
+              });
+            }
+
+            markers.push(myNewMarker);
             coords.push(pos);
             if(typeof(callback) == 'function') callback();
         }

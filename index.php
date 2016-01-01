@@ -58,5 +58,15 @@ $app->get('/api/:url', function ($url) {
     echo(json_encode($out));
 });
 
+$app->get('/api/info/numberOfTraces', function () {
+    $db = new Database();
+    $result = $db->getNumberOfTraces();
+
+    $out = array();
+    $out['count'] = count($result);
+
+    echo(json_encode($out));
+});
+
 $app->run();
 ?>

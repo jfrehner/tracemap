@@ -66,4 +66,12 @@ class Database {
     VALUES ("'.$result['query'].'", "'.$hostname.'", "'.$result['as'].'", "'.$result['city'].'", "'.$result['country'].'", "'.$result['countryCode'].'", "'.$result['isp'].'", "'.$result['org'].'",
     "'.$result['region'].'", "'.$result['regionName'].'", "'.$result['timezone'].'", "'.$result['zip'].'", "'.$result['lat'].'", "'.$result['lon'].'")');
   }
+
+  public function getNumberOfTraces() {
+    $result = $this->db->query("SELECT * FROM search");
+    while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+      $data[] = $row;
+    }
+    return $data;
+  }
 }
