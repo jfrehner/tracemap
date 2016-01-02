@@ -52,6 +52,12 @@ $app->get('/api/:url', function ($url) {
     $db = new Database();
     $insertID = $db->insertURL($url);
 
+    $cmd = 'traceroute -I '.$url;
+    $outputfile = 'traceroutes/'.$insertID.'.txt';
+    $pidfile = 'traceroutes/'.$insertID.'.pid';
+    exec(sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, $outputfile, $pidfile));
+
+    // The following code will be obsolete once we read the realtime data from the file
     exec('traceroute -I '.$url.' 2>&1', $out, $code);
     if ($code) {
         die("An error occurred while trying to traceroute: " . join("\n", $out));
@@ -59,6 +65,10 @@ $app->get('/api/:url', function ($url) {
 
     $db->insertTraceroute($insertID, $out);
 
+/*
+    $out = array();
+    $out['id'] = $insertID;
+*/
     echo(json_encode($out));
 });
 
