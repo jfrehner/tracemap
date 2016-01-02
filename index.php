@@ -8,6 +8,17 @@ define( 'TMPL', './templates/');
 require 'vendor/autoload.php';
 include 'lib/mysql.php';
 
+function isRunning($pid){
+  try {
+      $result = shell_exec(sprintf("ps %d", $pid));
+      if( count(preg_split("/\n/", $result)) > 2){
+          return true;
+      }
+  } catch (Exception $e) {}
+
+  return false;
+}
+
 $app = new \Slim\Slim();
 
 $app->get('/', function () use ($app) {
@@ -71,6 +82,28 @@ $app->get('/api/:url', function ($url) {
 */
     echo(json_encode($out));
 });
+
+$app->get('/api/traceroute/:id', function ($id) {
+    $db = new Database();
+    $result = $db->getTraceroute($id);
+    if (count($result)) {
+      echo(json_encode($result));
+    } else {
+      $file = fopen('traceroutes/'.$id.'.txt', 'r');
+      $pid = fgets($file);
+      fclose($file);
+
+      if (isRunning($pid)) {
+        $status = 'inProgress';
+      } else {
+        $status = 'finished';
+        //$db->insertTraceroute($insertID, $out);
+      }
+    }
+
+
+});
+
 
 $app->get('/api/info/basic', function () {
     $db = new Database();
