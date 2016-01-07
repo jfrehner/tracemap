@@ -18,34 +18,62 @@ function getUserIP()
     return $ip;
 }
 
+
+/**
+ * Class to handle all DB-related requests.
+ */
 class Database {
+
+
+  /**
+   * The DB-Object.
+   * @var Object  Mysqli-Object
+   */
   private $db = null;
 
+
+  /**
+   * Constructor of the Database.
+   * Creates a connection to the DB.
+   */
   function Database() {
     $this->connect();
   }
 
+
+  /**
+   * Connects to the DB through the creation of a new mysqli-object.
+   * All the parameters necessary to create a mysqli-Object are initialized
+   * in this method, such as the user-name, password, server and database-name.
+   */
   private function connect() {
     $server = 'localhost'; // this may be an ip address instead
   	$user = 'root';
-  	$pass = '';
+  	$pass = 'root';
   	$database = 'tracemap';
   	$this->db = new mysqli($server, $user, $pass, $database);
   }
 
-  public function executeSelect($sql) {
-    $result = $this->db->query($sql);
-    while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
-  		$data[] = $row;
-  	}
-    return $data;
-  }
 
+  /**
+   * Inserts the passed URL into the DB (table 'search') together with the
+   * IP of the user.
+   *
+   * @param  String   $url    The URL to insert into the DB.
+   * @return Int              The insert_id returned by the DB after an Insert.
+   */
   public function insertURL($url) {
     $this->db->query('INSERT INTO search (url, requester_ip) VALUES ("'.$url.'", "'.getUserIP().'")');
     return $this->db->insert_id;
   }
 
+
+  /**
+   * Inserts a traceroute with all its hops into the DB.
+   *
+   * @param  Int     $searchID The id of the search the traceroute belongs to.
+   * @param  array   $out      The array containing all the hops as strings.
+   */
   public function insertTraceroute($searchID, $out) {
     foreach ($out as $key => $value) {
       $parts = explode(" ", trim($value));
