@@ -67,7 +67,7 @@ $app->get('/api/:url', function ($url) {
     $outputfile = 'traceroutes/'.$insertID.'.txt';
     $pidfile = 'traceroutes/'.$insertID.'.pid';
     exec(sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, $outputfile, $pidfile));
-
+/*
     // The following code will be obsolete once we read the realtime data from the file
     exec('traceroute -I '.$url.' 2>&1', $out, $code);
     if ($code) {
@@ -75,33 +75,48 @@ $app->get('/api/:url', function ($url) {
     }
 
     $db->insertTraceroute($insertID, $out);
-
+*/
 /*
     $out = array();
     $out['id'] = $insertID;
 */
+
+    $out = array();
+    $out['id'] = $insertID;
+
     echo(json_encode($out));
 });
 
 $app->get('/api/traceroute/:id', function ($id) {
     $db = new Database();
     $result = $db->getTraceroute($id);
-    if (count($result)) {
+    if (count($result) > 0) {
       echo(json_encode($result));
     } else {
-      $file = fopen('traceroutes/'.$id.'.txt', 'r');
+      $file = fopen('traceroutes/'.$id.'.pid', 'r');
       $pid = fgets($file);
       fclose($file);
 
+      $out = array();
+      $out['data'] = array();
+
       if (isRunning($pid)) {
-        $status = 'inProgress';
+        $out['inProgress'] = true;
+        $traceFileHandle = fopen('traceroutes/'.$id.'.txt', 'r');
+
+        while(! feof($traceFileHandle))
+          {
+            array_push($out['data'], fgets($traceFileHandle));
+          }
+
+        fclose($traceFileHandle);
       } else {
-        $status = 'finished';
-        //$db->insertTraceroute($insertID, $out);
+        $out['inProgress'] = false;
+        // $db->insertTraceroute($insertID, $out['data']);
       }
     }
 
-
+    echo(json_encode($out));
 });
 
 

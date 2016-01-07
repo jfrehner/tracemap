@@ -82,7 +82,27 @@ $(document).ready(function() {
         $.ajax({
             method: "GET",
             url: "./api/" + url,
+            dataType: "json",
             success: function(data) {
+              console.log(data);
+              console.log("./api/traceroute/" + data.id);
+              var getHops = function(timeout) {
+                setTimeout($.ajax({
+                    method: "GET",
+                    url: "./api/traceroute/" + data.id,
+                    dataType: "json",
+                    success: function(data) {
+                      if (data.inProgress) {
+                        getHops(500);
+                        console.log(data);
+                      } else {
+                        console.log("FINISHED");
+                      }
+                    }
+                }), timeout);
+              }
+              getHops(0);
+              /*
                 var ip = '';
                 data = $.parseJSON(data);
 
@@ -98,17 +118,17 @@ $(document).ready(function() {
                             ip = line.substr(line.indexOf('(') + 1, line.indexOf(')') - line.indexOf('(') - 1);
                             // Using the hostname to get location info (because we want to save hostname and ip to the db)
                             var infobox = generateInfoBoxText(parts[2], ip, []);
-                            getIpLocation({url: parts[2], infobox: infobox});
+                            getIpLocation({url: ip, infobox: infobox});
                             $('#tm-data ul').append("<li>" + key + " " + data[key] + "</li>");
                         }
                     }
-                }
+                }*/
                 //Caution: this is a hack. Since we need to call adjustMapBounds as a callback
                 //we set the last added marker again, so we are able to call adjustMapBounds as a callback.
                 //
                 //AdjustMapBounds can not be added as a callback to every getIpLocation-call (see Line 37)
                 //because this will lead to a stackoverflow. JS is giving a "Too many recursion error".
-                getIpLocation({url: ip}, adjustMapBounds, true);
+                //getIpLocation({url: ip}, adjustMapBounds, true);
                 $('#tm-data').css("display", "block");
             }
         });
@@ -212,9 +232,11 @@ $(document).ready(function() {
 
 
     function removeMarkers() {
+      if (markers) {
         for(i = 1; i < markers.length; i++) {
             markers[i].setMap(null);
         }
+      }
     }
 
 

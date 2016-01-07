@@ -85,6 +85,7 @@ class Database {
   }
 
   public function getNumberOfTraces() {
+    $data = [];
     $result = $this->db->query("SELECT COUNT(*) FROM search");
     while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
       $data[] = $row;
@@ -93,6 +94,7 @@ class Database {
   }
 
   public function getNumberOfHops() {
+    $data = [];
     $result = $this->db->query("SELECT COUNT(*) FROM hops");
     while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
       $data[] = $row;
@@ -101,6 +103,7 @@ class Database {
   }
 
   public function getAverageHopTime() {
+    $data = [];
     $result = $this->db->query("SELECT AVG(rtt1) as AVG1, AVG(rtt2) as AVG2, AVG(rtt3) as AVG3 FROM `hops` WHERE hop_number > 0");
     while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
       $data[] = $row;
@@ -109,7 +112,17 @@ class Database {
   }
 
   public function getTopTraces() {
+    $data = [];
     $result = $this->db->query("SELECT *, count(url) as traceCount FROM `search` GROUP BY url ORDER BY traceCount DESC LIMIT 10");
+    while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+      $data[] = $row;
+    }
+    return $data;
+  }
+
+  public function getTraceroute($id) {
+    $data = [];
+    $result = $this->db->query("SELECT * FROM hops WHERE search_id = " . $id);
     while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
       $data[] = $row;
     }
