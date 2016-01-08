@@ -6,7 +6,20 @@ $(document).ready(function() {
     var bounds;
     var map;
     var coords;
+    console.log('init coords');
     var path;
+
+    var view = $('body').attr('id');
+
+
+    if(view == 'view-tracemap') {
+      initMap(true);
+    } else if(view == 'view-stats') {
+      initMap(false, getTopTraces);
+      getInfo(); // TODO: Call only when info is needed
+    } else if(view == 'view-about') {
+
+    }
 
 
     /**
@@ -31,111 +44,6 @@ $(document).ready(function() {
       });
     }
 
-    /**
-     * Gets the top traces via a GET-Request to the REST-Api of the app.
-     * The returned data is then appended to an element with the id #topTraces.
-     */
-    function getTopTraces() {
-      $.ajax({
-        method: "GET",
-        url: "./api/info/topTraces",
-        success: function(data) {
-          data = $.parseJSON(data);
-          var dataSet = new Array();
-          for(var i = 0; i < data.length; i++) {
-            dataSet.push({count: data[i].traceCount, label: data[i].url});
-            // $('#topTraces').append("<tr id=" + i + ">" +
-            //   "<td>" + data[i].url + "</td>" +
-            //   "<td>" + data[i].traceCount + "</td>" +
-            // "</tr>");
-          }
-          constructPieChart(dataSet);
-        }
-      });
-    }
-
-    function constructPieChart(data) {
-      var width = 650;
-      var height = 400;
-      var radius = 130;
-      var color = d3.scale.category20c();
-      var svg = d3.select('#topTenChart')
-        .append('svg')
-        .attr('width', width)
-        .attr('height', height)
-        .append('g')
-        .attr('transform', 'translate(' + (width / 2) +  ',' + (height / 2) + ')');
-      var arc = d3.svg.arc()
-        .outerRadius(radius);
-      var arcOver = d3.svg.arc()
-        .outerRadius(radius + 10);
-      var pie = d3.layout.pie()
-        .value(function(d) { return d.count; })
-        .sort(null);
-      var path = svg.selectAll('path')
-        .data(pie(data))
-        .enter()
-        .append('path')
-        .attr('d', arc)
-        .attr('fill', function(d, i) {
-          return color(d.data.label);
-        })
-        .on('mouseover', function(d, i) {
-          d3.select(this).transition()
-                         .duration(200)
-                         .attr('d', arcOver);
-          var ending = 's';
-          if(d.data.count == 1) {
-            ending = '';
-          }
-          svg.append('text')
-                        .attr('id', i)
-                        .attr('class', 'count-nr')
-                        .style('text-anchor', 'middle')
-                        .attr('y', '180')
-                        .text(d.data.label + ' was called ' + d.data.count + ' time' + ending);
-          d3.select('#topTraces tr#n' + i)
-                        .attr('class', 'hover');
-        })
-        .on('mouseout', function(d) {
-          d3.select(this).transition()
-                         .duration(200)
-                         .attr('d', arc);
-          var id = d3.select('text').attr('id');
-          svg.select('text.count-nr').remove();
-          d3.select('#topTraces tr#n' + id)
-                        .classed('hover', false);
-        });
-
-      var tr = d3.select('#topTraces')
-                    .selectAll('tr')
-                    .data(data)
-                    .enter()
-                    .append('tr')
-                    .attr('id', function(d, i) {
-                      return 'n' + i;
-                    })
-                    .on('mouseover', function(d, i) {
-                      var onePath = path[0][i];
-                      d3.select(onePath).transition()
-                                     .duration(200)
-                                     .attr('d', arcOver);
-                    })
-                    .on('mouseout', function(d, i) {
-                      var onePath = path[0][i];
-                      d3.select(onePath).transition()
-                                     .duration(200)
-                                     .attr('d', arc);
-                    });
-
-      tr.append('td').html(function(d) {return d.label});
-      tr.append('td').html(function(d) {return d.count});
-    }
-
-
-    //initMap();
-    getInfo(); // TODO: Call only when info is needed
-    getTopTraces();
 
     /**
      * Tests whether the passed URL is a valid one or not.
@@ -219,6 +127,118 @@ $(document).ready(function() {
     }
 
 
+    /**
+     * Gets the top traces via a GET-Request to the REST-Api of the app and
+     * displays the stats in a nice pie chart together with a table.
+     * Furthermore, it displays all the hops on the google map.
+     */
+    function getTopTraces() {
+      $.ajax({
+        method: "GET",
+        url: "./api/info/topTraces",
+        success: function(data) {
+          data = $.parseJSON(data);
+          var dataSet = new Array();
+          for(var i = 0; i < data.length; i++) {
+            dataSet.push({count: data[i].traceCount, label: data[i].url});
+            var url = data[i].url;
+            getIpLocationMarker({url: url}, adjustMapBounds);
+          }
+          constructPieChartWTable(dataSet);
+          tryToDraw(200);
+        }
+      });
+    }
+
+    function tryToDraw(timeout) {
+      setTimeout(function() {
+          if(coords.length > 1) {
+          drawTopTens(coords);
+        } else {
+          tryToDraw(200);
+        }
+      }, timeout);
+    }
+
+    function constructPieChartWTable(data) {
+      var width = 450;
+      var height = 400;
+      var radius = 130;
+      var color = d3.scale.category20c();
+      var svg = d3.select('#topTenChart')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height)
+        .append('g')
+        .attr('transform', 'translate(' + (width / 2) +  ',' + (height / 2) + ')');
+      var arc = d3.svg.arc()
+        .outerRadius(radius);
+      var arcOver = d3.svg.arc()
+        .outerRadius(radius + 10);
+      var pie = d3.layout.pie()
+        .value(function(d) { return d.count; })
+        .sort(null);
+      var path = svg.selectAll('path')
+        .data(pie(data))
+        .enter()
+        .append('path')
+        .attr('d', arc)
+        .attr('fill', function(d, i) {
+          return color(d.data.label);
+        })
+        .on('mouseover', function(d, i) {
+          d3.select(this).transition()
+                         .duration(200)
+                         .attr('d', arcOver);
+          var ending = 's';
+          if(d.data.count == 1) {
+            ending = '';
+          }
+          svg.append('text')
+                        .attr('id', i)
+                        .attr('class', 'count-nr')
+                        .style('text-anchor', 'middle')
+                        .attr('y', '180')
+                        .text(d.data.label + ' was called ' + d.data.count + ' time' + ending);
+          d3.select('#topTraces tr#n' + i)
+                        .attr('class', 'hover');
+        })
+        .on('mouseout', function(d) {
+          d3.select(this).transition()
+                         .duration(200)
+                         .attr('d', arc);
+          var id = d3.select('text').attr('id');
+          svg.select('text.count-nr').remove();
+          d3.select('#topTraces tr#n' + id)
+                        .classed('hover', false);
+        });
+
+      var tr = d3.select('#topTraces')
+                  .selectAll('tr')
+                  .data(data)
+                  .enter()
+                  .append('tr')
+                  .attr('id', function(d, i) {
+                    return 'n' + i;
+                  })
+                  .on('mouseover', function(d, i) {
+                    var onePath = path[0][i];
+                    d3.select(onePath).transition()
+                                      .duration(200)
+                                      .attr('d', arcOver);
+                  })
+                  .on('mouseout', function(d, i) {
+                    var onePath = path[0][i];
+                    d3.select(onePath).transition()
+                                      .duration(200)
+                                      .attr('d', arc);
+                  });
+
+        tr.append('td').html(function(d) {return d.label});
+        tr.append('td').html(function(d) {return d.count});
+      };
+
+
     $('#tm-search button').on('click', function(e) {
 
       e.preventDefault();
@@ -299,7 +319,7 @@ $(document).ready(function() {
 
                 destMarker = { latitude: destLat, longitude: destLong, title: 'Destination'};
 
-                addMarker(destMarker, info.infobox, callback, drawLine);
+                return addMarker(destMarker, info.infobox, callback, drawLine);
             }
         });
     }
@@ -312,7 +332,7 @@ $(document).ready(function() {
      * navigator.geolocation in Firefox. Sometimes it works quite fine, sometimes
      * Firefox is not doing anything at all. It seems to work fine in Chrome.
      */
-    function initMap() {
+    function initMap(showStartMarker, callback) {
       window.navigator.geolocation.getCurrentPosition(function(position) {
         var startMarker;
 
@@ -322,14 +342,20 @@ $(document).ready(function() {
         //Initialize empty markers-Array
         markers = new Array();
         coords = new Array();
+        console.log('created new coords');
 
         //Set start marker
-        startMarker = { latitude: start.coords.latitude, longitude: start.coords.longitude, title: 'Start'};
+        if(showStartMarker) {
+          startMarker = { latitude: start.coords.latitude, longitude: start.coords.longitude, title: 'Start'};
+        }
         map = new google.maps.Map(document.getElementById("tm-map-initial"), {center: new google.maps.LatLng(start.coords.latitude, start.coords.longitude), zoom: 15});
 
-        //Add the start marker to the google-map
-        addMarker(startMarker, generateInfoBoxText('Our Server', ''));
+        if(showStartMarker) {
+          //Add the start marker to the google-map if wished
+          addMarker(startMarker, generateInfoBoxText('Our Server', ''));
+        }
         map.getZoom();
+        if(callback && typeof callback == 'function') callback();
       });
     }
 
@@ -378,10 +404,16 @@ $(document).ready(function() {
                 infowindow.open(map, myNewMarker);
               });
             }
-
+            if(!markers) {
+              markers = new Array();
+            }
+            if(!coords) {
+              coords = new Array();
+            }
             markers.push(myNewMarker);
             coords.push(pos);
             if(typeof(callback) == 'function') callback();
+            return pos;
         }
         if(drawLine) {
             var destCoord = coords.splice(1, 1);
@@ -395,6 +427,24 @@ $(document).ready(function() {
                 strokeWeight: 2
             });
         }
+    }
+
+
+    function drawTopTens(coords) {
+      var points = new Array();
+      points[0] = {lat: start.coords.latitude, lng: start.coords.longitude};
+      for(i = 0; i < coords.length; i++) {
+        points.push(coords[i]);
+        path = new google.maps.Polyline({
+          path: points,
+          map: map,
+          geodesic: true,
+          strokeColor: '#FF0000',
+          strokeOpacity: 1.0,
+          strokeWeight: 2
+        });
+        points.pop();
+      }
     }
 
 
