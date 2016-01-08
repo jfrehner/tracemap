@@ -197,13 +197,15 @@ input:hover {
     border-bottom: none;
 }
 
-#tm-map-initial,
-#tm-map-stats {
+#tm-map-initial {
     margin: 0 auto;
     width: 80%;
     height: 500px;
     background-color: #ccc;
     border: 1px solid black;
+    background-image: url("loader.gif");
+    background-repeat: no-repeat;
+    background-position: center center;
 }
 
 #tm-data {
