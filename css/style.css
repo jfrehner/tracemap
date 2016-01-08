@@ -197,7 +197,8 @@ input:hover {
     border-bottom: none;
 }
 
-#tm-map-initial {
+#tm-map-initial,
+#tm-map-stats {
     margin: 0 auto;
     width: 80%;
     height: 500px;
@@ -262,5 +263,5 @@ text {
 
 #topTenChart svg {
   display: block;
-  margin: 0 auto;
+  margin: -70px auto 0;
 }
