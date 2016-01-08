@@ -10,6 +10,7 @@
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
         <script src="js/app.js"></script>
+        <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
     </head>
     <body id="view-stats">
 
@@ -76,6 +77,7 @@
                         <td>Amounts traced</td>
                     </thead>
                     <tbody id="topTraces">
+                      <div id="topTenChart"></div>
                     </tbody>
                 </table>
             </section>

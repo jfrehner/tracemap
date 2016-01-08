@@ -252,3 +252,9 @@ input:hover {
 #view-stats table td:last-child {
     width: 25%;
 }
+
+/* Style piecharts */
+text {
+  font-size: 14px;
+  font-weight: light;
+}

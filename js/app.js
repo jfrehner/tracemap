@@ -41,18 +41,71 @@ $(document).ready(function() {
         url: "./api/info/topTraces",
         success: function(data) {
           data = $.parseJSON(data);
+          var dataSet = new Array();
           for(var i = 0; i < data.length; i++) {
+            dataSet.push({count: data[i].traceCount, label: data[i].url});
             $('#topTraces').append("<tr>" +
               "<td>" + data[i].url + "</td>" +
               "<td>" + data[i].traceCount + "</td>" +
             "</tr>");
           }
+          constructPieChart(dataSet);
         }
       });
     }
 
+    function constructPieChart(data) {
+      var width = 350;
+      var height = 250;
+      var radius = 80;
+      var color = d3.scale.category20c();
+      var svg = d3.select('#topTenChart')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height)
+        .append('g')
+        .attr('transform', 'translate(' + (width / 2) +  ',' + (height / 2) + ')');
+      var arc = d3.svg.arc()
+        .outerRadius(radius);
+      var arcOver = d3.svg.arc()
+        .outerRadius(radius + 10);
+      var pie = d3.layout.pie()
+        .value(function(d) { return d.count; })
+        .sort(null);
+      var path = svg.selectAll('path')
+        .data(pie(data))
+        .enter()
+        .append('path')
+        .attr('d', arc)
+        .attr('fill', function(d, i) {
+          return color(d.data.label);
+        })
+        .on('mouseover', function(d) {
+          d3.select(this).transition()
+                         .duration(200)
+                         .attr('d', arcOver);
+          var ending = 's';
+          if(d.data.count == 1) {
+            ending = '';
+          }
+          svg.append('text')
+                        .attr('id', 'count-nr')
+                        .style('text-anchor', 'middle')
+                        .attr('y', '120')
+                        .text(d.data.label + ' was called ' + d.data.count + ' time' + ending);
+          console.log(d.data.label);
+        })
+        .on('mouseout', function(d) {
+          d3.select(this).transition()
+                         .duration(200)
+                         .attr('d', arc);
+          svg.select('text#count-nr').remove();
+          svg.select('text#url').remove();
+        });
+    }
 
-    initMap();
+
+    //initMap();
     getInfo(); // TODO: Call only when info is needed
     getTopTraces();
 
@@ -111,49 +164,66 @@ $(document).ready(function() {
       }
     }, 700));
 
+
+    /**
+     * Gets all the hops to a given URL in real-time.
+     * The function calls itself recursively after the passed 'timeout' and if
+     * there is still more data to fetch.
+     *
+     * @param  {array} data     Array containing all the data of the initially pinged url.
+     * @param  {int}   timeout  The timeout after which the function should call
+     *                          itself again
+     */
+    function getHops(data, timeout) {
+      setTimeout($.ajax({
+          method: "GET",
+          url: "./api/traceroute/" + data.id,
+          dataType: "json",
+          success: function(data) {
+            if (data.inProgress) {
+              getHops(500);
+              console.log(data);
+            } else {
+              console.log("FINISHED");
+            }
+          }
+      }), timeout);
+    }
+
+
     $('#tm-search button').on('click', function(e) {
 
-        e.preventDefault();
-        removeMarkers();
-        if(path) {
-            removePolyline();
-        }
-        markers.length = 1;
-        coords.length = 1;
+      e.preventDefault();
+      removeMarkers();
+      removePolyline();
+      markers.length = 1;
+      coords.length = 1;
 
-        var url = $('#tm-search input').val();
+      var url = $('#tm-search input').val();
 
-        url = url.replace('https://', '').replace('http://', '');
+      url = url.replace('https://', '').replace('http://', '');
 
-        $(this).html('Loading Data…');
-        $('#tm-data ul').html('');
-        $('#tm-data h2').html('Tracemap-Stats for Destination ' + url);
+      /*
+      As soon as the user clicks on the 'traceroute'-button display a message
+      on the button itself, that we are loading the data. Furthermore, delete
+      hop data from a previous request - if there is any - and print the current
+      url into the header of the tracemap-stats section under the google map.
+       */
+      $(this).html('Loading Data…');
+      $('#tm-data ul').html('');
+      $('#tm-data h2').html('Tracemap-Stats for Destination ' + url);
 
-        getIpLocation({url: url}, adjustMapBounds);
+      getIpLocationMarker({url: url}, adjustMapBounds);
 
-        $.ajax({
-            method: "GET",
-            url: "./api/" + url,
-            dataType: "json",
-            success: function(data) {
-              console.log(data);
-              console.log("./api/traceroute/" + data.id);
-              var getHops = function(timeout) {
-                setTimeout($.ajax({
-                    method: "GET",
-                    url: "./api/traceroute/" + data.id,
-                    dataType: "json",
-                    success: function(data) {
-                      if (data.inProgress) {
-                        getHops(500);
-                        console.log(data);
-                      } else {
-                        console.log("FINISHED");
-                      }
-                    }
-                }), timeout);
-              }
-              getHops(0);
+      $.ajax({
+          method: "GET",
+          url: "./api/" + url,
+          dataType: "json",
+          success: function(data) {
+            console.log(data);
+            console.log("./api/traceroute/" + data.id);
+
+            getHops(data, 0);
               /*
                 var ip = '';
                 data = $.parseJSON(data);
@@ -170,7 +240,7 @@ $(document).ready(function() {
                             ip = line.substr(line.indexOf('(') + 1, line.indexOf(')') - line.indexOf('(') - 1);
                             // Using the hostname to get location info (because we want to save hostname and ip to the db)
                             var infobox = generateInfoBoxText(parts[2], ip, []);
-                            getIpLocation({url: ip, infobox: infobox});
+                            getIpLocationMarker({url: ip, infobox: infobox});
                             $('#tm-data ul').append("<li>" + key + " " + data[key] + "</li>");
                         }
                     }
@@ -178,16 +248,16 @@ $(document).ready(function() {
                 //Caution: this is a hack. Since we need to call adjustMapBounds as a callback
                 //we set the last added marker again, so we are able to call adjustMapBounds as a callback.
                 //
-                //AdjustMapBounds can not be added as a callback to every getIpLocation-call (see Line 37)
+                //AdjustMapBounds can not be added as a callback to every getIpLocationMarker-call (see Line 37)
                 //because this will lead to a stackoverflow. JS is giving a "Too many recursion error".
-                //getIpLocation({url: ip}, adjustMapBounds, true);
+                //getIpLocationMarker({url: ip}, adjustMapBounds, true);
                 $('#tm-data').css("display", "block");
             }
         });
     });
 
 
-    function getIpLocation(info, callback, drawLine) {
+    function getIpLocationMarker(info, callback, drawLine) {
         var url = info.url.replace('www.', '');
         $.ajax({
             method: "GET",
@@ -320,7 +390,9 @@ $(document).ready(function() {
      * tracemap-request after a first one.
      */
     function removePolyline() {
+      if(path) {
         path.setMap(null);
+      }
     }
 
 
