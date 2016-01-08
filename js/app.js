@@ -142,7 +142,7 @@ $(document).ready(function() {
           for(var i = 0; i < data.length; i++) {
             dataSet.push({count: data[i].traceCount, label: data[i].url});
             var url = data[i].url;
-            getIpLocationMarker({url: url}, adjustMapBounds);
+            getIpLocationMarker({url: url, infobox: generateInfoBoxText(data[i].url, '')}, adjustMapBounds);
           }
           constructPieChartWTable(dataSet);
           tryToDraw(200);
@@ -349,7 +349,7 @@ $(document).ready(function() {
           startMarker = { latitude: start.coords.latitude, longitude: start.coords.longitude, title: 'Start'};
         }
         map = new google.maps.Map(document.getElementById("tm-map-initial"), {center: new google.maps.LatLng(start.coords.latitude, start.coords.longitude), zoom: 15});
-
+        $('#tm-map-initial').css('background-image', 'none');
         if(showStartMarker) {
           //Add the start marker to the google-map if wished
           addMarker(startMarker, generateInfoBoxText('Our Server', ''));
@@ -377,7 +377,7 @@ $(document).ready(function() {
       }
       //TODO: Style the infobox
       var string = '<div id="content">'+
-        '<h1 id="firstHeading" class="firstHeading">'+ hostname +'</h1>'+
+        '<h4 id="firstHeading" class="firstHeading">'+ hostname +'</h4>'+
         '<div id="bodyContent">'+
           '<p>'+ ip +'</p>' +
         stringHops +
