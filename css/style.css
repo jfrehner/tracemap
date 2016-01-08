@@ -239,7 +239,8 @@ input:hover {
     border-top: 1px solid #ccc;
 }
 
-#view-stats table tbody tr:hover {
+#view-stats tr.hover,
+#view-stats tr:hover {
     background-color: #3E9FFF;
     color: #fff;
 }
@@ -257,4 +258,9 @@ input:hover {
 text {
   font-size: 14px;
   font-weight: light;
+}
+
+#topTenChart svg {
+  display: block;
+  margin: 0 auto;
 }

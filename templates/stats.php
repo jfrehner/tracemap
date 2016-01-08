@@ -68,16 +68,16 @@
                         </tr>
                     </tbody>
                 </table>
-                <h3>
+                <h2>
                     The ten most traced URLs are
-                </h3>
+                </h2>
+                <div id="topTenChart"></div>
                 <table>
                     <thead>
                         <td>URL</td>
                         <td>Amounts traced</td>
                     </thead>
                     <tbody id="topTraces">
-                      <div id="topTenChart"></div>
                     </tbody>
                 </table>
             </section>

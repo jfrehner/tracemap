@@ -44,10 +44,10 @@ $(document).ready(function() {
           var dataSet = new Array();
           for(var i = 0; i < data.length; i++) {
             dataSet.push({count: data[i].traceCount, label: data[i].url});
-            $('#topTraces').append("<tr>" +
-              "<td>" + data[i].url + "</td>" +
-              "<td>" + data[i].traceCount + "</td>" +
-            "</tr>");
+            // $('#topTraces').append("<tr id=" + i + ">" +
+            //   "<td>" + data[i].url + "</td>" +
+            //   "<td>" + data[i].traceCount + "</td>" +
+            // "</tr>");
           }
           constructPieChart(dataSet);
         }
@@ -55,9 +55,9 @@ $(document).ready(function() {
     }
 
     function constructPieChart(data) {
-      var width = 350;
-      var height = 250;
-      var radius = 80;
+      var width = 650;
+      var height = 400;
+      var radius = 130;
       var color = d3.scale.category20c();
       var svg = d3.select('#topTenChart')
         .append('svg')
@@ -80,7 +80,7 @@ $(document).ready(function() {
         .attr('fill', function(d, i) {
           return color(d.data.label);
         })
-        .on('mouseover', function(d) {
+        .on('mouseover', function(d, i) {
           d3.select(this).transition()
                          .duration(200)
                          .attr('d', arcOver);
@@ -89,19 +89,47 @@ $(document).ready(function() {
             ending = '';
           }
           svg.append('text')
-                        .attr('id', 'count-nr')
+                        .attr('id', i)
+                        .attr('class', 'count-nr')
                         .style('text-anchor', 'middle')
-                        .attr('y', '120')
+                        .attr('y', '180')
                         .text(d.data.label + ' was called ' + d.data.count + ' time' + ending);
-          console.log(d.data.label);
+          d3.select('#topTraces tr#n' + i)
+                        .attr('class', 'hover');
         })
         .on('mouseout', function(d) {
           d3.select(this).transition()
                          .duration(200)
                          .attr('d', arc);
-          svg.select('text#count-nr').remove();
-          svg.select('text#url').remove();
+          var id = d3.select('text').attr('id');
+          svg.select('text.count-nr').remove();
+          d3.select('#topTraces tr#n' + id)
+                        .classed('hover', false);
         });
+
+      var tr = d3.select('#topTraces')
+                    .selectAll('tr')
+                    .data(data)
+                    .enter()
+                    .append('tr')
+                    .attr('id', function(d, i) {
+                      return 'n' + i;
+                    })
+                    .on('mouseover', function(d, i) {
+                      var onePath = path[0][i];
+                      d3.select(onePath).transition()
+                                     .duration(200)
+                                     .attr('d', arcOver);
+                    })
+                    .on('mouseout', function(d, i) {
+                      var onePath = path[0][i];
+                      d3.select(onePath).transition()
+                                     .duration(200)
+                                     .attr('d', arc);
+                    });
+
+      tr.append('td').html(function(d) {return d.label});
+      tr.append('td').html(function(d) {return d.count});
     }
 
 
