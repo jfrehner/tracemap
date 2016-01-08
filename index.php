@@ -21,26 +21,45 @@ function isRunning($pid){
 
 $app = new \Slim\Slim();
 
+
+/**
+ * Get-request to the root of our app renders the template for the index-page.
+ */
 $app->get('/', function () use ($app) {
   $app->render('index.php', array(
 		'page_title' => "Tracemap"
   ));
 });
 
+
+/**
+ * Get-request to /stats renders the template for the stats-page.
+ */
 $app->get('/stats/', function () use ($app) {
     $app->render('stats.php', array(
         'page_title' => 'Statistics'
     ));
 });
 
+
+/**
+ * Get-request to /about renders the template for the about-page.
+ */
 $app->get('/about/', function () use ($app) {
     $app->render('about.php', array(
         'page_title' => 'About'
     ));
 });
 
+
 /**
  * API CODE
+ */
+/**
+ * Get-request to /api/ping/:url gets the location for a given url.
+ *
+ * @param {string} $url The url to get the location for.
+ * @return {json}       Returns the location-data in a json-object.
  */
 $app->get('/api/ping/:url', function ($url) {
 
@@ -59,6 +78,14 @@ $app->get('/api/ping/:url', function ($url) {
     echo(json_encode($result));
 });
 
+
+/**
+ * Get-request to /api/:url performs a traceroute-command to the given url, saves
+ * the whole output into a file and the DB and returns it as a json-object.
+ *
+ * @param {string} $url The url to get the traceroute to.
+ * @return {json}       Returns id of the traceroute-result.
+ */
 $app->get('/api/:url', function ($url) {
     $db = new Database();
     $insertID = $db->insertURL($url);
@@ -87,6 +114,14 @@ $app->get('/api/:url', function ($url) {
     echo(json_encode($out));
 });
 
+
+/**
+ * Get-request to /api/traceroute/:id gets the traceroute-data for a given id
+ * from the DB.
+ *
+ * @param  {int}  $id   The id to get the location for.
+ * @return {json}       Returns the traceroute-data in a json-object.
+ */
 $app->get('/api/traceroute/:id', function ($id) {
     $db = new Database();
     $result = $db->getTraceroute($id);
@@ -120,6 +155,12 @@ $app->get('/api/traceroute/:id', function ($id) {
 });
 
 
+/**
+ * Get-request to /api/info/basic gets the basic stats for all the executed
+ * and saved traceroutes so far.
+ *
+ * @return {json}       Returns the basic info-data in a json-object.
+ */
 $app->get('/api/info/basic', function () {
     $db = new Database();
     $timesResults = $db->getAverageHopTime();
@@ -133,6 +174,13 @@ $app->get('/api/info/basic', function () {
     echo(json_encode($out));
 });
 
+
+/**
+ * Get-request to /api/info/topTraces gets the topTen traced urls for all the executed
+ * and saved traceroutes so far.
+ *
+ * @return {json}       Returns the topTraces info-data in a json-object.
+ */
 $app->get('/api/info/topTraces', function () {
     $db = new Database();
     $results = $db->getTopTraces();
