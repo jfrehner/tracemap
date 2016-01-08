@@ -9,8 +9,9 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-        <script src="js/app.js"></script>
+        <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?v=3"></script>
         <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
+        <script src="js/app.js"></script>
     </head>
     <body id="view-stats">
 
@@ -39,15 +40,13 @@
 
             <section id="tm-google-map-stats">
                 <h3>The ten most traced routes are:</h3>
-                <figure>
-                    {{ Insert Google Map here }}
-                </figure>
+                <div id="tm-map-initial"></div>
             </section>
 
             <section id="tm-stats">
-                <h3>
+                <h2>
                     General Statistics
-                </h3>
+                </h2>
                 <table>
                     <thead>
                         <td>Stat</td>
