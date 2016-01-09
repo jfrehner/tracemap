@@ -137,19 +137,34 @@ $app->get('/api/traceroute/:id', function ($id) {
 
       if (isRunning($pid)) {
         $out['inProgress'] = true;
-        $traceFileHandle = fopen('traceroutes/'.$id.'.txt', 'r');
-
-        while(! feof($traceFileHandle))
-          {
-            array_push($out['data'], fgets($traceFileHandle));
-          }
-
-        fclose($traceFileHandle);
       } else {
         $out['inProgress'] = false;
         // $db->insertTraceroute($insertID, $out['data']);
       }
     }
+
+    $traceFileHandle = fopen('traceroutes/'.$id.'.txt', 'r');
+
+    while(! feof($traceFileHandle)) {
+        $line = fgets($traceFileHandle);
+        $parts = explode(" ", trim($line));
+
+        $temp = array();
+        if ($line && is_numeric($parts[0])) {
+          $temp['hopNr'] = '';
+          $temp['host'] = '';
+          $temp['ip'] = '';
+          $temp['hop1'] = '';
+          $temp['hop2'] = '';
+          $temp['hop3'] = '';
+          array_push($out['data'], $temp);
+        } else {
+          $temp['message'] = $line;
+          array_push($out['data'], $temp);
+        }
+      }
+
+    fclose($traceFileHandle);
 
     echo(json_encode($out));
 });
