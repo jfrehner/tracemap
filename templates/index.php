@@ -6,6 +6,7 @@
 
         <link rel="stylesheet" href="./css/normalize.css">
         <link rel="stylesheet" href="./css/style.css">
+        <link rel="stylesheet" href="./css/flags.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
@@ -57,15 +58,22 @@
 
             <section id="tm-data">
                 <h2></h2>
-                <ul>
-
-                </ul>
+                <p></p>
+                <table id="traceroute-table">
+                  <thead>
+                    <tr>
+                      <td>Country</td><td>Hop-Nr</td><td>Host</td><td>Ip-Address</td><td>1st Response</td><td>2nd Response</td><td>3rd Response</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+                </table>
             </section>
 
         </main>
 
         <footer>
-            Copyright by
+            &copy 2016 by Andreas Gassmann &amp Jonas Frehner
         </footer>
 
     </body>

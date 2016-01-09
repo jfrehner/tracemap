@@ -6,7 +6,6 @@ $(document).ready(function() {
     var bounds;
     var map;
     var coords;
-    console.log('init coords');
     var path;
 
     var view = $('body').attr('id');
@@ -117,13 +116,15 @@ $(document).ready(function() {
           url: "./api/traceroute/" + id,
           dataType: "json",
           success: function(data) {
+            $('#tm-data-raw ul').html('');
+            $('#traceroute-table tbody').html('');
+            $('#tm-data-raw h2').html('Traceroute output');
+
             if (data.inProgress) {
               setTimeout(function() {
                 getHops(id)
               }, 500);
 
-              $('#tm-data-raw ul').html('');
-              $('#tm-data-raw h2').html('Traceroute output');
               for(var key in data.data) {
                 if (data.data[key].message) {
                   $('#tm-data-raw ul').append("<li>" + data.data[key].message + "</li>");
@@ -133,10 +134,9 @@ $(document).ready(function() {
                   $('#tm-data-raw ul').append("<li>" + data.data[key].hopNr + " " + data.data[key].host + " " + data.data[key].ip + " " + data.data[key].hop1 + " " + data.data[key].hop2 + " " + data.data[key].hop3 + "</li>");
                 }
               }
+              generateHopTable(data);
               console.log("IN PROGRESS");
             } else {
-              $('#tm-data-raw ul').html('');
-              $('#tm-data-raw h2').html('Traceroute output');
               for(var key in data.data) {
                 console.log(data.data[key]);
                 if (data.data[key].message) {
@@ -147,10 +147,29 @@ $(document).ready(function() {
                   $('#tm-data-raw ul').append("<li>" + data.data[key].hopNr + " " + data.data[key].host + " " + data.data[key].ip + " " + data.data[key].hop1 + " " + data.data[key].hop2 + " " + data.data[key].hop3 + "</li>");
                 }
               }
+              generateHopTable(data);
               console.log("FINISHED");
             }
           }
       });
+    }
+
+    function generateHopTable(data) {
+      for(var key in data.data) {
+        var countryCode = '';
+        if (data.data[key].message) {
+          $('#tm-data p').text(data.data[key].message);
+        } else {
+          var infobox = generateInfoBoxText(data.data[key].host, data.data[key].ip, []);
+          if (data.data[key].ip) getIpLocationMarker({url: data.data[key].ip, infobox: infobox});
+          if(locationCache[data.data[key].ip] && locationCache[data.data[key].ip].country_code) {
+            countryCode = locationCache[data.data[key].ip].country_code.toLowerCase();
+          } else {
+            countryCode = '';
+          }
+          $('#traceroute-table tbody').append("<tr><td><img src='./css/blank.gif' class=\"flag flag-" + countryCode + "\"></img></td><td>" + data.data[key].hopNr + "</td><td>" + data.data[key].host + "</td><td>" + data.data[key].ip + "</td><td>" + data.data[key].hop1 + "</td><td>" + data.data[key].hop2 + "</td><td>" + data.data[key].hop3 + "</td>");
+        }
+      }
     }
 
 
@@ -288,7 +307,9 @@ $(document).ready(function() {
       $('#tm-data ul').html('');
       $('#tm-data h2').html('Tracemap-Stats for Destination ' + url);
 
-      getIpLocationMarker({url: url}, adjustMapBounds);
+      //Get the destination-marker via a ping and adjust the map-bounds
+      //so start and end are visible.
+      getIpLocationMarker({url: url, infobox: generateInfoBoxText('Destination-Server', '')}, adjustMapBounds);
 
       $.ajax({
           method: "GET",
@@ -378,7 +399,9 @@ $(document).ready(function() {
      * Firefox is not doing anything at all. It seems to work fine in Chrome.
      */
     function initMap(showStartMarker, callback) {
+      console.log('initMap');
       window.navigator.geolocation.getCurrentPosition(function(position) {
+        console.log('loading');
         var startMarker;
 
         //Save position as global start-position.
