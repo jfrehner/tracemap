@@ -98,7 +98,7 @@ $(document).ready(function() {
         $('#submitBtn').html('Trace it!');
         $('#submitBtn').prop('disabled', false);
       }
-    }, 700));
+    }, 300));
 
 
     /**
@@ -110,20 +110,41 @@ $(document).ready(function() {
      * @param  {int}   timeout  The timeout after which the function should call
      *                          itself again
      */
-    function getHops(data, timeout) {
-      setTimeout($.ajax({
+    function getHops(id) {
+      $.ajax({
           method: "GET",
-          url: "./api/traceroute/" + data.id,
+          url: "./api/traceroute/" + id,
           dataType: "json",
           success: function(data) {
             if (data.inProgress) {
-              getHops(500);
-              console.log(data);
+              setTimeout(function() {
+                getHops(id)
+              }, 500);
+              $('#tm-data-raw ul').html('');
+              $('#tm-data-raw h2').html('Traceroute output');
+              for(var key in data.data) {
+                if (data.data[key].message) {
+                  $('#tm-data-raw ul').append("<li>" + data.data[key].message + "</li>");
+                } else {
+                  $('#tm-data-raw ul').append("<li>" + data.data[key].hopNr + " " + data.data[key].host + " " + data.data[key].ip + " " + data.data[key].hop1 + " " + data.data[key].hop2 + " " + data.data[key].hop3 + "</li>");
+                }
+              }
+              console.log("IN PROGRESS");
             } else {
+              $('#tm-data-raw ul').html('');
+              $('#tm-data-raw h2').html('Traceroute output');
+              for(var key in data.data) {
+                console.log(data.data[key]);
+                if (data.data[key].message) {
+                  $('#tm-data-raw ul').append("<li>" + data.data[key].message + "</li>");
+                } else {
+                  $('#tm-data-raw ul').append("<li>" + data.data[key].hopNr + " " + data.data[key].host + " " + data.data[key].ip + " " + data.data[key].hop1 + " " + data.data[key].hop2 + " " + data.data[key].hop3 + "</li>");
+                }
+              }
               console.log("FINISHED");
             }
           }
-      }), timeout);
+      });
     }
 
 
@@ -271,7 +292,7 @@ $(document).ready(function() {
             console.log(data);
             console.log("./api/traceroute/" + data.id);
 
-            getHops(data, 0);
+            getHops(data.id);
               /*
                 var ip = '';
                 data = $.parseJSON(data);
