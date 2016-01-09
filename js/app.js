@@ -11,6 +11,7 @@ $(document).ready(function() {
 
     var view = $('body').attr('id');
 
+    var locationCache = [];
 
     if(view == 'view-tracemap') {
       initMap(true);
@@ -120,12 +121,15 @@ $(document).ready(function() {
               setTimeout(function() {
                 getHops(id)
               }, 500);
+
               $('#tm-data-raw ul').html('');
               $('#tm-data-raw h2').html('Traceroute output');
               for(var key in data.data) {
                 if (data.data[key].message) {
                   $('#tm-data-raw ul').append("<li>" + data.data[key].message + "</li>");
                 } else {
+                  var infobox = generateInfoBoxText(data.data[key].host, data.data[key].ip, []);
+                  if (data.data[key].ip) getIpLocationMarker({url: data.data[key].ip, infobox: infobox});
                   $('#tm-data-raw ul').append("<li>" + data.data[key].hopNr + " " + data.data[key].host + " " + data.data[key].ip + " " + data.data[key].hop1 + " " + data.data[key].hop2 + " " + data.data[key].hop3 + "</li>");
                 }
               }
@@ -138,6 +142,8 @@ $(document).ready(function() {
                 if (data.data[key].message) {
                   $('#tm-data-raw ul').append("<li>" + data.data[key].message + "</li>");
                 } else {
+                  var infobox = generateInfoBoxText(data.data[key].host, data.data[key].ip, []);
+                  if (data.data[key].ip) getIpLocationMarker({url: data.data[key].ip, infobox: infobox});
                   $('#tm-data-raw ul').append("<li>" + data.data[key].hopNr + " " + data.data[key].host + " " + data.data[key].ip + " " + data.data[key].hop1 + " " + data.data[key].hop2 + " " + data.data[key].hop3 + "</li>");
                 }
               }
@@ -327,22 +333,40 @@ $(document).ready(function() {
 
 
     function getIpLocationMarker(info, callback, drawLine) {
+      // TODO: Remove duplicate code
         var url = info.url.replace('www.', '');
-        $.ajax({
-            method: "GET",
-            url: "./api/ping/" + url,
-            success: function(data) {
-                data = $.parseJSON(data);
+        if (locationCache[url]) {
+          console.log('CACHED');
+          console.log(url + ' is in ' + locationCache[url].country);
 
-                var destLong = data.longitude;
-                var destLat = data.latitude;
-                var destMarker;
+          var destLong = locationCache[url].longitude;
+          var destLat = locationCache[url].latitude;
+          var destMarker;
 
-                destMarker = { latitude: destLat, longitude: destLong, title: 'Destination'};
+          destMarker = { latitude: destLat, longitude: destLong, title: 'Destination'};
 
-                return addMarker(destMarker, info.infobox, callback, drawLine);
-            }
-        });
+          return addMarker(destMarker, info.infobox, callback, drawLine);
+
+        } else {
+          $.ajax({
+              method: "GET",
+              url: "./api/ping/" + url,
+              success: function(data) {
+                  data = $.parseJSON(data);
+
+                  locationCache[url] = data;
+                  console.log(url + ' is in ' + data.country);
+
+                  var destLong = data.longitude;
+                  var destLat = data.latitude;
+                  var destMarker;
+
+                  destMarker = { latitude: destLat, longitude: destLong, title: 'Destination'};
+
+                  return addMarker(destMarker, info.infobox, callback, drawLine);
+              }
+          });
+        }
     }
 
 
