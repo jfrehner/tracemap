@@ -88,15 +88,20 @@ $(document).ready(function() {
      * "invalid URL"-Message if he's still inserting his URL.
      */
     $('#tm-search').on('keyup', debounce(function(e) {
-      var url = $('#tm-search input').val();
-      if(!isUrlValid(url)) {
-        $('#submitBtn').css('background-color', '#aaaaaa');
-        $('#submitBtn').html('No valid URL!');
-        $('#submitBtn').prop('disabled', true);
+      if(e.keyCode !== '13') {
+        var url = $('#tm-search input').val();
+        if(!isUrlValid(url)) {
+          $('#submitBtn').css('background-color', '#aaaaaa');
+          $('#submitBtn').html('Not a valid URL!');
+          $('#submitBtn').prop('disabled', true);
+        } else {
+          $('#submitBtn').css('background-color', '#3E9FFF');
+          $('#submitBtn').html('Trace it!');
+          $('#submitBtn').prop('disabled', false);
+        }
       } else {
-        $('#submitBtn').css('background-color', '#3E9FFF');
-        $('#submitBtn').html('Trace it!');
-        $('#submitBtn').prop('disabled', false);
+        e.preventDefault();
+        $('#tm-search button').click();
       }
     }, 300));
 
@@ -119,35 +124,19 @@ $(document).ready(function() {
             $('#tm-data-raw ul').html('');
             $('#traceroute-table tbody').html('');
             $('#tm-data-raw h2').html('Traceroute output');
-
             if (data.inProgress) {
               setTimeout(function() {
                 getHops(id)
               }, 500);
-
-              for(var key in data.data) {
-                if (data.data[key].message) {
-                  $('#tm-data-raw ul').append("<li>" + data.data[key].message + "</li>");
-                } else {
-                  var infobox = generateInfoBoxText(data.data[key].host, data.data[key].ip, []);
-                  if (data.data[key].ip) getIpLocationMarker({url: data.data[key].ip, infobox: infobox});
-                  $('#tm-data-raw ul').append("<li>" + data.data[key].hopNr + " " + data.data[key].host + " " + data.data[key].ip + " " + data.data[key].hop1 + " " + data.data[key].hop2 + " " + data.data[key].hop3 + "</li>");
-                }
-              }
               generateHopTable(data);
               console.log("IN PROGRESS");
             } else {
-              for(var key in data.data) {
-                console.log(data.data[key]);
-                if (data.data[key].message) {
-                  $('#tm-data-raw ul').append("<li>" + data.data[key].message + "</li>");
-                } else {
-                  var infobox = generateInfoBoxText(data.data[key].host, data.data[key].ip, []);
-                  if (data.data[key].ip) getIpLocationMarker({url: data.data[key].ip, infobox: infobox});
-                  $('#tm-data-raw ul').append("<li>" + data.data[key].hopNr + " " + data.data[key].host + " " + data.data[key].ip + " " + data.data[key].hop1 + " " + data.data[key].hop2 + " " + data.data[key].hop3 + "</li>");
-                }
-              }
               generateHopTable(data);
+              $('#submitBtn').css('background-color', '#3E9FFF');
+              $('#submitBtn').html('Trace it!');
+              $('#submitBtn').prop('disabled', false);
+              $('#tm-search input').prop('disabled', false);
+              $('#tm-search input').css('color', '#fff');
               console.log("FINISHED");
             }
           }
@@ -164,10 +153,11 @@ $(document).ready(function() {
           if (data.data[key].ip) getIpLocationMarker({url: data.data[key].ip, infobox: infobox});
           if(locationCache[data.data[key].ip] && locationCache[data.data[key].ip].country_code) {
             countryCode = locationCache[data.data[key].ip].country_code.toLowerCase();
+            $('#traceroute-table tbody').append("<tr><td><img src='./css/blank.gif' class=\"flag flag-" + countryCode + "\"></img></td><td>" + data.data[key].hopNr + "</td><td>" + data.data[key].host + "</td><td>" + data.data[key].ip + "</td><td>" + data.data[key].hop1 + "</td><td>" + data.data[key].hop2 + "</td><td>" + data.data[key].hop3 + "</td>");
           } else {
             countryCode = '';
+            $('#traceroute-table tbody').append("<tr><td></td><td>" + data.data[key].hopNr + "</td><td>" + data.data[key].host + "</td><td>" + data.data[key].ip + "</td><td>" + data.data[key].hop1 + "</td><td>" + data.data[key].hop2 + "</td><td>" + data.data[key].hop3 + "</td>");
           }
-          $('#traceroute-table tbody').append("<tr><td><img src='./css/blank.gif' class=\"flag flag-" + countryCode + "\"></img></td><td>" + data.data[key].hopNr + "</td><td>" + data.data[key].host + "</td><td>" + data.data[key].ip + "</td><td>" + data.data[key].hop1 + "</td><td>" + data.data[key].hop2 + "</td><td>" + data.data[key].hop3 + "</td>");
         }
       }
     }
@@ -304,6 +294,10 @@ $(document).ready(function() {
       url into the header of the tracemap-stats section under the google map.
        */
       $(this).html('Loading Data…');
+      $(this).css('background-color', '#aaaaaa');
+      $(this).prop('disabled', true);
+      $('#tm-search input').prop('disabled', true);
+      $('#tm-search input').css('color', '#aaa');
       $('#tm-data ul').html('');
       $('#tm-data h2').html('Tracemap-Stats for Destination ' + url);
 
