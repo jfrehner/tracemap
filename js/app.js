@@ -92,7 +92,7 @@ $(document).ready(function() {
         var url = $('#tm-search input').val();
         if(!isUrlValid(url)) {
           $('#submitBtn').css('background-color', '#aaaaaa');
-          $('#submitBtn').html('Not a valid URL!');
+          $('#submitBtn').html('Invalid URL!');
           $('#submitBtn').prop('disabled', true);
         } else {
           $('#submitBtn').css('background-color', '#3E9FFF');
@@ -127,7 +127,7 @@ $(document).ready(function() {
             if (data.inProgress) {
               setTimeout(function() {
                 getHops(id)
-              }, 500);
+              }, 1000);
               generateHopTable(data);
               console.log("IN PROGRESS");
             } else {
@@ -149,8 +149,8 @@ $(document).ready(function() {
         if (data.data[key].message) {
           $('#tm-data p').text(data.data[key].message);
         } else {
-          var infobox = generateInfoBoxText(data.data[key].host, data.data[key].ip, []);
-          if (data.data[key].ip) getIpLocationMarker({url: data.data[key].ip, infobox: infobox});
+          var infobox = generateInfoBoxText(data.data[key].host, data.data[key].ip, data.data[key].hopNr);
+          if (data.data[key].ip) getIpLocationMarker({url: data.data[key].ip, infobox: infobox}, adjustMapBounds());
           if(locationCache[data.data[key].ip] && locationCache[data.data[key].ip].country_code) {
             countryCode = locationCache[data.data[key].ip].country_code.toLowerCase();
             $('#traceroute-table tbody').append("<tr><td><img src='./css/blank.gif' class=\"flag flag-" + countryCode + "\"></img></td><td>" + data.data[key].hopNr + "</td><td>" + data.data[key].host + "</td><td>" + data.data[key].ip + "</td><td>" + data.data[key].hop1 + "</td><td>" + data.data[key].hop2 + "</td><td>" + data.data[key].hop3 + "</td>");
@@ -426,24 +426,23 @@ $(document).ready(function() {
      *
      * @param  {string} hostname The hostname of the hop to display in the infoxbox
      * @param  {string} ip       The ip-address of the hop to display
-     * @param  {array} hops      The array containing all the hops
+     * @param  {string} hopNr    The HopNr of the hop
      * @return {string}          A string containing all the necessary html
      *                           to display a nice Infobox for a marker a the google map
      */
-    function generateInfoBoxText(hostname, ip, hops) {
-      var stringHops = '';
-      if (hops) {
-        for(var i = 0; i < hops.length; i++) {
-          stringHops += '<p>'+ (i+1) +': ' + hops[i] + '</p>'
-        }
+    function generateInfoBoxText(hostname, ip, hopNr) {
+      var hopStr = '';
+      var ipStr = '';
+      if(hopNr) {
+        hopStr = 'Hop-Nr: ' + hopNr + ' &#64; ';
       }
-      //TODO: Style the infobox
+      if(ip) {
+        ipStr = '<div id="bodyContent">'+
+          '<p>The IP-Address is: '+ ip +'</p>' +
+        '</div>';
+      }
       var string = '<div id="content">'+
-        '<h4 id="firstHeading" class="firstHeading">'+ hostname +'</h4>'+
-        '<div id="bodyContent">'+
-          '<p>'+ ip +'</p>' +
-        stringHops +
-        '</div>'+
+        '<h4 id="firstHeading" class="firstHeading">' + hopStr + hostname + '</h4>' + ipStr +
       '</div>';
       return string;
     }
