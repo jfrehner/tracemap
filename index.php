@@ -258,7 +258,7 @@ The following code should give correct results for this traceroute
             array_push($out['data'], $temp);
             continue;
           }
-          $temp['ip'] = $matches[1][2 + $offset];
+          $temp['ip'] = substr($matches[1][2 + $offset], 1, -1);
 
           // Check if array is long enough to hold one more hop time
           if (count($matches[1]) < 4 + $offset) {
@@ -358,7 +358,7 @@ The following code should give correct results for this traceroute
             array_push($out['data'], $temp);
             continue;
           }
-          $temp['ip'] = $matches[1][1 + $offset];
+          $temp['ip'] = substr($matches[1][1 + $offset], 1, -1);
 
           if (count($matches[1]) < 3 + $offset) {
             array_push($out['data'], $temp);
