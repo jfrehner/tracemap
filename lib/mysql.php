@@ -162,7 +162,7 @@ class Database {
     while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
       $data[] = $row;
     }
-    return $data[0]['finished'];
+    return (count($data) > 0) ? $data[0]['finished'] : true;
   }
 
   public function updateTracerouteFinished($id) {
@@ -177,8 +177,15 @@ class Database {
     if (count($result) === 0) {
       //$out = file_get_contents('http://www.freegeoip.net/json/' . $url);
 
-      $out = file_get_contents('http://ip-api.com/json/' . $ip);
-      $this->insertIPLocation($url, $out);
+      if (strlen($ip) > 0) {
+        $out = file_get_contents('http://ip-api.com/json/' . $ip);
+        $this->insertIPLocation($url, $out);
+      }
+
+      if (strlen($url) > 0) {
+        $out = file_get_contents('http://ip-api.com/json/' . $url);
+        $this->insertIPLocation($url, $out);
+      }
     }
   }
 }

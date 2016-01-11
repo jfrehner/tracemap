@@ -440,14 +440,17 @@ The following code should give correct results for this traceroute
     fclose($traceFileHandle);
 
     if (!$out['inProgress']) {
-      unlink('traceroutes/'.$id.'.pid');
-      unlink('traceroutes/'.$id.'.txt');
+      //unlink('traceroutes/'.$id.'.pid');
+      //unlink('traceroutes/'.$id.'.txt');
       $db->updateTracerouteFinished($id);
     }
 
     foreach ($out['data'] as $key => $value) {
       $db->insertTraceroute($id, $value);
     }
+
+    $result = $db->getTraceroute($id);
+    $out['data'] = $result;
 
     echo(json_encode($out));
 });
