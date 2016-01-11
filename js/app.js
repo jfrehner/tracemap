@@ -610,7 +610,7 @@ $(document).ready(function() {
     function adjustMapBounds(map, metaData) {
         metaData.bounds = new google.maps.LatLngBounds();
         for(i = 0; i < metaData.markers.length; i++) {
-            metaData.bounds.extend(markers[i].getPosition());
+          metaData.bounds.extend(metaData.markers[i].getPosition());
         }
         map.fitBounds(metaData.bounds);
     }
