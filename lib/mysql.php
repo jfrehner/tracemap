@@ -80,21 +80,22 @@ class Database {
       VALUES ("'.$searchID.'", "'.$data['message'].'")');
     } else {
       $this->db->query('INSERT INTO hops (searchID, hopNumber, hostname, ip, rtt1, rtt2, rtt3)
-      VALUES ("'.$searchID.'", "'.$data['hopNr'].'", "'.$data['hostname'].'", "'.$data['ip'].'", "'.$data['rtt1'].'", "'.$data['rtt2'].'", "'.$data['rtt3'].'")
-      ON DUPLICATE KEY UPDATE hopNumber = "'.$data['hopNr'].'", hostname = "'.$data['hostname'].'", ip = "'.$data['ip'].'", rtt1= "'.$data['rtt1'].'", rtt2 = "'.$data['rtt2'].'", rtt3 = "'.$data['rtt3'].'"');
+      VALUES ("'.$searchID.'", "'.$data['hopNumber'].'", "'.$data['hostname'].'", "'.$data['ip'].'", "'.$data['rtt1'].'", "'.$data['rtt2'].'", "'.$data['rtt3'].'")
+      ON DUPLICATE KEY UPDATE hopNumber = "'.$data['hopNumber'].'", hostname = "'.$data['hostname'].'", ip = "'.$data['ip'].'", rtt1= "'.$data['rtt1'].'", rtt2 = "'.$data['rtt2'].'", rtt3 = "'.$data['rtt3'].'"');
       $this->requestIPLocation($data['hostname'], $data['ip']);
     }
   }
 
-  public function insertIPLocation($hostname, $out) {
+  public function insertIPLocation($hostname, $ip, $out) {
     $result = json_decode($out, true);
 
     if($result['status'] !== 'fail') {
-      $result = $this->db->query('INSERT INTO ip_locations (ip, hostname, asn, city, country, countryCode, isp, org, region, regionName, timezone, zip, longitude, latitude)
+      $result = $this->db->query('INSERT INTO ip_locations (ip, hostname, asn, city, country, countryCode, isp, org, region, regionName, timezone, zip, longitude, latitude,status)
       VALUES ("'.$result['query'].'", "'.$hostname.'", "'.$result['as'].'", "'.$result['city'].'", "'.$result['country'].'", "'.$result['countryCode'].'", "'.$result['isp'].'", "'.$result['org'].'",
-      "'.$result['region'].'", "'.$result['regionName'].'", "'.$result['timezone'].'", "'.$result['zip'].'", "'.$result['lon'].'", "'.$result['lat'].'")');
+      "'.$result['region'].'", "'.$result['regionName'].'", "'.$result['timezone'].'", "'.$result['zip'].'", "'.$result['lon'].'", "'.$result['lat'].'", 1)');
     } else {
-      // TODO Handle errors
+      $result = $this->db->query('INSERT INTO ip_locations (ip, hostname, status)
+      VALUES ("'.$ip.'", "'.$hostname.'", 0)');
     }
   }
 
@@ -179,12 +180,12 @@ class Database {
 
       if (strlen($ip) > 0) {
         $out = file_get_contents('http://ip-api.com/json/' . $ip);
-        $this->insertIPLocation($url, $out);
+        $this->insertIPLocation($url, $ip, $out);
       }
 
       if (strlen($url) > 0) {
         $out = file_get_contents('http://ip-api.com/json/' . $url);
-        $this->insertIPLocation($url, $out);
+        $this->insertIPLocation($url, $ip, $out);
       }
     }
   }

@@ -217,14 +217,14 @@ The following code should give correct results for this traceroute
           // echo "zeroeth" . $line . "\n";
 
           // Initialize response parameters
-          $temp['hopNr'] = '';
+          $temp['hopNumber'] = '';
           $temp['hostname'] = '';
           $temp['ip'] = '';
           $temp['rtt1'] = '';
           $temp['rtt2'] = '';
           $temp['rtt3'] = '';
 
-          $temp['hopNr'] = $matches[1][0]; // Set hop number
+          $temp['hopNumber'] = $matches[1][0]; // Set hop number
 
           // Check if there is a timeout (still loading)
           if (count($matches[1]) == 2 && $matches[1][1] == '*') {
@@ -353,7 +353,7 @@ The following code should give correct results for this traceroute
           *
           */
 
-          $temp['hopNr'] = '';
+          $temp['hopNumber'] = '';
 
           while (count($matches[1]) > 0 + $offset && $matches[1][0 + $offset] === '*') {$offset++;}
           if (count($matches[1]) < 1 + $offset) {
