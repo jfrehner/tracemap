@@ -1,19 +1,6 @@
 $(document).ready(function() {
 
 
-    var start;
-    var markers;
-    var bounds;
-    var map;
-    var coords;
-
-    /**
-     * Holds the number of all the hops of the current traceroute so we can test
-     * whether or not a hop already has a marker or not.
-     */
-    var hops;
-    var path;
-
     function initPage() {
       var url = window.location.href;
       url = url.substr(url.lastIndexOf("/") + 1, url.length);
@@ -24,8 +11,6 @@ $(document).ready(function() {
     }
 
     initPage();
-
-    var locationCache = [];
 
     $('nav .view-tracemap').on('click', function(e) {
       e.preventDefault();
@@ -91,8 +76,8 @@ $(document).ready(function() {
         if(view == 'view-tracemap') {
           drawMap(true);
         } else if(view == 'view-statistics') {
-          initMap(false, getTopTraces);
-          drawMap(); // TODO: Call only when info is needed
+          drawMap(true, [], getTopTraces);
+          getInfo();
         } else if(view == 'view-about') {
         }
         applyListeners();
@@ -100,40 +85,6 @@ $(document).ready(function() {
       });
     }
 
-
-    /**
-     * Initializes the google-map and inserts it into the page.
-     *
-     * CAUTION (8.1.16): There seems to be quite inconsistent behavior with the
-     * navigator.geolocation in Firefox. Sometimes it works quite fine, sometimes
-     * Firefox is not doing anything at all. It seems to work fine in Chrome.
-     */
-    // function initMap(showStartMarker, callback) {
-    //   window.navigator.geolocation.getCurrentPosition(function(position) {
-    //     var startMarker;
-    //
-    //     //Save position as global start-position.
-    //     start = position;
-    //
-    //     //Initialize empty Arrays for the new traceroute-data
-    //     markers = new Array();
-    //     coords = new Array();
-    //     hops = new Array();
-    //
-    //     //Set start marker
-    //     if(showStartMarker) {
-    //       startMarker = { latitude: start.coords.latitude, longitude: start.coords.longitude, title: 'Start'};
-    //     }
-    //     map = new google.maps.Map(document.getElementById("tm-map-initial"), {center: new google.maps.LatLng(start.coords.latitude, start.coords.longitude), zoom: 15});
-    //     $('#tm-map-initial').css('background-image', 'none');
-    //     if(showStartMarker) {
-    //       //Add the start marker to the google-map if wished
-    //       drawMarker(startMarker, generateInfoBoxText('Our Server', ''));
-    //     }
-    //     map.getZoom();
-    //     if(callback && typeof callback == 'function') callback();
-    //   });
-    // }
 
     /**
      * Initializes a new google map.
@@ -160,9 +111,13 @@ $(document).ready(function() {
           //Add the start marker to the google-map if wished
           startMarker = { latitude: start.coords.latitude, longitude: start.coords.longitude, title : 'Start' };
           drawMarker(startMarker, generateInfoBoxText('Our Server', ''), metaData, adjustMapBounds, map);
+          metaData.start = startMarker;
         }
         map.getZoom();
-        if(callback && typeof callback == 'function') callback(data, map, metaData);
+        if(callback && typeof callback == 'function') {
+          console.log('here it comes');
+          callback(data, map, metaData);
+        }
       });
     }
 
@@ -196,22 +151,47 @@ $(document).ready(function() {
      * Furthermore, it displays all the hops on the google map.
      */
     //TODO Refactor
-    function getTopTraces() {
+    function getTopTraces(data, map, metaData) {
+      console.log(metaData.markers);
       $.ajax({
         method: "GET",
         url: "./api/info/topTraces",
-        success: function(data) {
-          data = $.parseJSON(data);
-          var dataSet = new Array();
-          for(var i = 0; i < data.length; i++) {
-            dataSet.push({count: data[i].traceCount, label: data[i].url});
-            var url = data[i].url;
-            getIpLocationMarker({url: url, infobox: generateInfoBoxText(data[i].url, '')}, adjustMapBounds);
+        success: function(response) {
+          response = $.parseJSON(response);
+          console.log(response);
+          var dataSet  = new Array();
+          for(var i = 0; i < response.length; i++) {
+            dataSet.push({count: response[i].traceCount, label: response[i].url});
+            drawTopTens(metaData, response, map);
+
           }
           constructPieChartWTable(dataSet);
-          tryToDraw(200);
         }
       });
+    }
+
+    function drawTopTens(metaData, topTenData, map) {
+      var points = new Array();
+      points[0] = {lat: metaData.start.latitude, lng: metaData.start.longitude};
+
+      for(i = 0; i < topTenData.length; i++) {
+        points.push({
+          lat: Number(topTenData[i].latitude),
+          lng: Number(topTenData[i].longitude)
+        });
+        path = new google.maps.Polyline({
+          path: points,
+          map: map,
+          geodesic: true,
+          strokeColor: '#FF0000',
+          strokeOpacity: 1.0,
+          strokeWeight: 2
+        });
+        newTopTenMarker = { latitude: points[1].lat, longitude: points[1].lng, title : topTenData[i].url };
+        drawMarker(newTopTenMarker, generateInfoBoxText(topTenData[i].url, topTenData[i].ip), metaData, adjustMapBounds, map);
+        points.pop();
+      }
+      adjustMapBounds(map, metaData);
     }
 
     function tryToDraw(timeout) {
@@ -312,9 +292,6 @@ $(document).ready(function() {
           $('#tm-data p').text(hopData.message);
 
         } else {
-          console.log(hopData);
-          console.log(hopData.hopNumber);
-          console.log(metaData.hops);
           //Test if hopNumber is already present. If not, add and draw marker
           if(metaData.hops.indexOf(hopData.hopNumber) === -1) {
             metaData.hops.push(hopData.hopNumber);
@@ -412,36 +389,9 @@ $(document).ready(function() {
     }
 
 
-    // function generateHopTable(data) {
-    //   for(var key in data.data) {
-    //     var countryCode = '';
-    //     if (data.data[key].message) {
-    //       $('#tm-data p').text(data.data[key].message);
-    //     } else {
-    //       if(hops.indexOf(data.data[key].hopNr) === -1) {
-    //         hops.push(data.data[key].hopNr);
-    //         var infobox = generateInfoBoxText(data.data[key].host, data.data[key].ip, data.data[key].hopNr);
-    //         if (data.data[key].ip) getIpLocationMarker({url: data.data[key].ip, infobox: infobox}, adjustMapBounds);
-    //         if(locationCache[data.data[key].ip] && locationCache[data.data[key].ip].country_code) {
-    //           countryCode = locationCache[data.data[key].ip].country_code.toLowerCase();
-    //           $('#traceroute-table tbody').append("<tr><td><img src='./css/blank.gif' class=\"flag flag-" + countryCode + "\"></img></td><td>" + data.data[key].hopNr + "</td><td>" + data.data[key].host + "</td><td>" + data.data[key].ip + "</td><td>" + data.data[key].hop1 + "</td><td>" + data.data[key].hop2 + "</td><td>" + data.data[key].hop3 + "</td>");
-    //         } else {
-    //           countryCode = '';
-    //           $('#traceroute-table tbody').append("<tr><td></td><td>" + data.data[key].hopNr + "</td><td>" + data.data[key].host + "</td><td>" + data.data[key].ip + "</td><td>" + data.data[key].hop1 + "</td><td>" + data.data[key].hop2 + "</td><td>" + data.data[key].hop3 + "</td>");
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
-
     function applyListeners() {
       $('#tm-search button').on('click', function(e) {
         e.preventDefault();
-        // removeMarkers();
-        // removePolyline();
-        //Delete all markers and coords except the ones for the start (our sever)
-        // markers.length = 1;
-        // coords.length = 1;
 
         $('#tm-data-raw ul').html('');
         $('#traceroute-table tbody').html('');
@@ -465,60 +415,17 @@ $(document).ready(function() {
         $('#tm-data ul').html('');
         $('#tm-data h2').html('Tracemap-Stats for Destination ' + url);
 
-        //Get the destination-marker via a ping and adjust the map-bounds
-        //so start and end are visible.
-        //getIpLocationMarker({url: url, infobox: generateInfoBoxText('Destination-Server', '')}, adjustMapBounds);
-
         $.ajax({
             method: "GET",
             url: "./api/" + url,
             dataType: "json",
             success: function(data) {
               drawMap(true, data, startTraceroute);
-              //startTraceroute(data.id);
-              //Caution: this is a hack. Since we need to call adjustMapBounds as a callback
-              //we set the last added marker again, so we are able to call adjustMapBounds as a callback.
-              //
-              //AdjustMapBounds can not be added as a callback to every getIpLocationMarker-call (see Line 37)
-              //because this will lead to a stackoverflow. JS is giving a "Too many recursion error".
-              //getIpLocationMarker({url: ip}, adjustMapBounds, true);
               $('#tm-data').css("display", "block");
             }
         });
       });
     };
-
-
-    // function getIpLocationMarker(info, callback, drawLine) {
-    //   // TODO: Remove duplicate code
-    //     var url = info.url.replace('www.', '');
-    //     if (locationCache[url]) {
-    //
-    //       var destLong = locationCache[url].longitude;
-    //       var destLat = locationCache[url].latitude;
-    //       var destMarker;
-    //
-    //       destMarker = { latitude: destLat, longitude: destLong, title: 'Destination'};
-    //       return addMarker(destMarker, info.infobox, callback, drawLine);
-    //     } else {
-    //       $.ajax({
-    //           method: "GET",
-    //           url: "./api/ping/" + url,
-    //           success: function(data) {
-    //             data = $.parseJSON(data);
-    //
-    //             locationCache[url] = data;
-    //
-    //             var destLong = data.longitude;
-    //             var destLat = data.latitude;
-    //             var destMarker;
-    //
-    //             destMarker = { latitude: destLat, longitude: destLong, title: 'Destination'};
-    //             return addMarker(destMarker, info.infobox, callback, drawLine);
-    //           }
-    //       });
-    //     }
-    // }
 
 
     /**
@@ -545,63 +452,6 @@ $(document).ready(function() {
         '<h4 id="firstHeading" class="firstHeading">' + hopStr + hostname + '</h4>' + ipStr +
       '</div>';
       return string;
-    }
-
-    // function addMarker(newMarker, contentString, callback, drawLine) {
-    //     if(!isNaN(newMarker.latitude) && !isNaN(newMarker.longitude)) {
-    //         var pos = new google.maps.LatLng(newMarker.latitude, newMarker.longitude);
-    //         var myNewMarker = new google.maps.Marker({
-    //             position: pos,
-    //             map: map,
-    //             title: newMarker.title
-    //         });
-    //
-    //         if (contentString) {
-    //           var infowindow = new google.maps.InfoWindow({
-    //             content: contentString
-    //           });
-    //
-    //           myNewMarker.addListener('click', function() {
-    //             infowindow.open(map, myNewMarker);
-    //           });
-    //         }
-    //         markers.push(myNewMarker);
-    //         coords.push(pos);
-    //         if(typeof(callback) == 'function') {
-    //           callback();
-    //         }
-    //         return pos;
-    //     }
-    //     if(drawLine) {
-    //         var destCoord = coords.splice(1, 1);
-    //         coords.push(destCoord[0]);
-    //         path = new google.maps.Polyline({
-    //             path: coords,
-    //             map: map,
-    //             geodesic: true,
-    //             strokeColor: '#FF0000',
-    //             strokeOpacity: 1.0,
-    //             strokeWeight: 2
-    //         });
-    //     }
-    // }
-
-
-    function drawTopTens(coords) {
-      var points = new Array();
-      points[0] = {lat: start.coords.latitude, lng: start.coords.longitude};
-      for(i = 0; i < coords.length; i++) {
-        points.push(coords[i]);
-        path = new google.maps.Polyline({
-          path: points,
-          map: map,
-          geodesic: true,
-          strokeColor: '#FF0000',
-          strokeOpacity: 1.0,
-          strokeWeight: 2
-        });
-        points.pop();
-      }
     }
 
 
