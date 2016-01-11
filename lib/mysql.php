@@ -47,10 +47,7 @@ class Database {
    * in this method, such as the user-name, password, server and database-name.
    */
   private function connect() {
-    $server = 'localhost'; // this may be an ip address instead
-  	$user = 'root';
-  	$pass = '';
-  	$database = 'tracemap';
+    require 'config.php';
   	$this->db = new mysqli($server, $user, $pass, $database);
   }
 
