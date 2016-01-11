@@ -341,7 +341,7 @@ $(document).ready(function() {
      * @return {[type]}            [description]
      */
     function drawMarker(position, InfoBoxText, metaData, callback, map) {
-      if(position.latitude && position.longitude) {
+      if((position.latitude && position.longitude) && (!isNaN(position.latitude) && !isNaN(position.latitude))) {
         var pos = new google.maps.LatLng(position.latitude, position.longitude);
         var newMarker = new google.maps.Marker({
           position: pos,
@@ -356,14 +356,36 @@ $(document).ready(function() {
           infoWindow.open(map, newMarker);
         })
 
-        metaData.coords.push(pos);
+        var objNr = metaData.coords.push(pos);
         metaData.markers.push(newMarker);
-
+        if(objNr > 1) {
+          drawLine(map, metaData, objNr - 1);
+        }
         if(typeof(callback) == 'function') {
           callback(map, metaData);
         }
 
       }
+    }
+
+    function drawLine(map, metaData, index) {
+      var coords = new Array();
+      coords.push({
+        lat: metaData.coords[index-1].lat(),
+        lng: metaData.coords[index-1].lng()
+      });
+      coords.push({
+        lat: metaData.coords[index].lat(),
+        lng: metaData.coords[index].lng()
+      });
+      path = new google.maps.Polyline({
+          path: coords,
+          map: map,
+          geodesic: true,
+          strokeColor: '#FF0000',
+          strokeOpacity: 1.0,
+          strokeWeight: 2
+      });
     }
 
 
