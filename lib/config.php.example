@@ -1,0 +1,5 @@
+<?php
+$server = 'localhost'; // this may be an ip address instead
+$user = 'root';
+$pass = '';
+$database = 'tracemap';
