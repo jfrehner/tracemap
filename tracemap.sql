@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Erstellungszeit: 11. Jan 2016 um 14:08
+-- Erstellungszeit: 11. Jan 2016 um 16:25
 -- Server-Version: 10.0.17-MariaDB
 -- PHP-Version: 5.6.14
 
@@ -60,7 +60,8 @@ CREATE TABLE `ip_locations` (
   `zip` varchar(20) NOT NULL,
   `latitude` varchar(50) NOT NULL,
   `longitude` varchar(50) NOT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -92,7 +93,8 @@ ALTER TABLE `hops`
 -- Indizes für die Tabelle `ip_locations`
 --
 ALTER TABLE `ip_locations`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uniqueHost` (`ip`,`hostname`);
 
 --
 -- Indizes für die Tabelle `search`
