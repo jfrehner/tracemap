@@ -82,6 +82,7 @@ class Database {
       $this->db->query('INSERT INTO hops (searchID, hopNumber, hostname, ip, rtt1, rtt2, rtt3)
       VALUES ("'.$searchID.'", "'.$data['hopNr'].'", "'.$data['hostname'].'", "'.$data['ip'].'", "'.$data['rtt1'].'", "'.$data['rtt2'].'", "'.$data['rtt3'].'")
       ON DUPLICATE KEY UPDATE hopNumber = "'.$data['hopNr'].'", hostname = "'.$data['hostname'].'", ip = "'.$data['ip'].'", rtt1= "'.$data['rtt1'].'", rtt2 = "'.$data['rtt2'].'", rtt3 = "'.$data['rtt3'].'"');
+      $this->requestIPLocation($data['hostname'], $data['ip']);
     }
   }
 
@@ -148,7 +149,7 @@ class Database {
 
   public function getTraceroute($id) {
     $data = [];
-    $result = $this->db->query("SELECT * FROM hops WHERE searchID = " . $id);
+    $result = $this->db->query("SELECT * FROM hops LEFT JOIN ip_locations USING (ip) WHERE searchID = " . $id . " ORDER BY hopNumber");
     while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
       $data[] = $row;
     }
@@ -169,4 +170,15 @@ class Database {
     return $result;
   }
 
+
+  public function requestIPLocation($url, $ip) {
+    $result = $this->getCachedURL($url);
+
+    if (count($result) === 0) {
+      //$out = file_get_contents('http://www.freegeoip.net/json/' . $url);
+
+      $out = file_get_contents('http://ip-api.com/json/' . $ip);
+      $this->insertIPLocation($url, $out);
+    }
+  }
 }

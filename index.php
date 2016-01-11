@@ -123,10 +123,12 @@ $app->get('/api/:url', function ($url) {
  * @return {json}       Returns the traceroute-data in a json-object.
  */
 $app->get('/api/traceroute/:id', function ($id) {
+  $out = array();
+  $out['id'] = $id;
+
     $db = new Database();
     if ($db->tracerouteFinished($id)) {
       $result = $db->getTraceroute($id);
-      $out = array();
       $out['data'] = $result;
       $out['inProgress'] = false;
       echo(json_encode($out));
@@ -140,7 +142,6 @@ $app->get('/api/traceroute/:id', function ($id) {
       $pid = fgets($file);
       fclose($file);
 
-      $out = array();
       $out['data'] = array();
 
       if (isRunning($pid)) {
