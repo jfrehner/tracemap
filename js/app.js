@@ -73,10 +73,10 @@ $(document).ready(function() {
 
 
     /**
-     * Renders the passed page-template.
-     * 
-     * @param  {[type]} template [description]
-     * @return {[type]}          [description]
+     * Renders the passed page-template and updates the site-title and header.
+     *
+     * @param  {string} template The name of the template that should be renedered.
+     * @return {string}          The template that just was rendered.
      */
     function renderPage(template) {
 
@@ -96,7 +96,7 @@ $(document).ready(function() {
         } else if(view == 'view-about') {
         }
         applyListeners();
-        return true;
+        return template;
       });
     }
 
@@ -135,6 +135,37 @@ $(document).ready(function() {
       });
     }
 
+    /**
+     * Initializes a new google map.
+     */
+    function drawMap(drawStartMarker, data, callback) {
+      window.navigator.geolocation.getCurrentPosition(function(start) {
+        var startMarker;
+
+        var markers = new Array();
+        var coords  = new Array();
+        var hops    = new Array();
+        var bounds  = new Array();
+
+        var metaData = {};
+        metaData.markers = markers;
+        metaData.coords  = coords;
+        metaData.hops    = hops;
+        metaData.bounds  = bounds;
+
+        map = new google.maps.Map(document.getElementById("tm-map-initial"), {center: new google.maps.LatLng(start.coords.latitude, start.coords.longitude), zoom: 15});
+
+        $('#tm-map-initial').css('background-image', 'none');
+        if(drawStartMarker) {
+          //Add the start marker to the google-map if wished
+          startMarker = { latitude: start.coords.latitude, longitude: start.coords.longitude, title : 'Start' };
+          drawMarker(startMarker, generateInfoBoxText('Our Server', ''), metaData, adjustMapBounds, map);
+        }
+        map.getZoom();
+        if(callback && typeof callback == 'function') callback(data, map, metaData);
+      });
+    }
+
 
     /**
      * Gets all the basic information (stats) via a GET-Request to the
@@ -164,6 +195,7 @@ $(document).ready(function() {
      * displays the stats in a nice pie chart together with a table.
      * Furthermore, it displays all the hops on the google map.
      */
+    //TODO Refactor
     function getTopTraces() {
       $.ajax({
         method: "GET",
@@ -209,35 +241,12 @@ $(document).ready(function() {
     }
 
 
-    // This function is taken from https://davidwalsh.name/javascript-debounce-function
-    // and is originately found in underscore.js
-    //
-    // Returns a function, that, as long as it continues to be invoked, will not
-    // be triggered. The function will be called after it stops being called for
-    // N milliseconds. If `immediate` is passed, trigger the function on the
-    // leading edge, instead of the trailing.
-    function debounce(func, wait, immediate) {
-    	var timeout;
-    	return function() {
-    		var context = this, args = arguments;
-    		var later = function() {
-    			timeout = null;
-    			if (!immediate) func.apply(context, args);
-    		};
-    		var callNow = immediate && !timeout;
-    		clearTimeout(timeout);
-    		timeout = setTimeout(later, wait);
-    		if (callNow) func.apply(context, args);
-    	};
-    };
-
-
     /**
      * Tests on every key-up-event whether the passed URL is a valid one or not.
      * Reaction "lags" behind by 700ms as to not disturb the user with an
      * "invalid URL"-Message if he's still inserting his URL.
      */
-    $('#tm-search').on('keyup', debounce(function(e) {
+    $('#tm-search').on('keyup', function(e) {
       if(e.keyCode !== '13') {
         var url = $('#tm-search input').val();
         if(!isUrlValid(url)) {
@@ -253,7 +262,7 @@ $(document).ready(function() {
         e.preventDefault();
         $('#tm-search button').click();
       }
-    }, 300));
+    });
 
 
     /**
@@ -265,19 +274,19 @@ $(document).ready(function() {
      * @param  {int}   timeout  The timeout after which the function should call
      *                          itself again
      */
-    function getHops(id) {
+    function startTraceroute(data, map, metaData) {
       $.ajax({
           method: "GET",
-          url: "./api/traceroute/" + id,
+          url: "./api/traceroute/" + data.id,
           dataType: "json",
           success: function(data) {
             if (data.inProgress) {
               setTimeout(function() {
-                getHops(id)
-              }, 1000);
-              generateHopTable(data);
+                startTraceroute(data, map, metaData);
+              }, 500);
+              processTracerouteData(data, map, metaData);
             } else {
-              generateHopTable(data);
+              processTracerouteData(data, map, metaData);
               $('#submitBtn').css('background-color', '#3E9FFF');
               $('#submitBtn').html('Trace it!');
               $('#submitBtn').prop('disabled', false);
@@ -287,6 +296,92 @@ $(document).ready(function() {
           }
       });
     }
+
+    /**
+     * Gets all Hops from the passed data.
+     *
+     * @return {[type]} [description]
+     */
+    function processTracerouteData(response, map, metaData) {
+      for(var key in response.data) {
+
+        //Save data for one hop in helper-variable
+        var hopData = response.data[key];
+
+        if (hopData.message) {
+          $('#tm-data p').text(hopData.message);
+
+        } else {
+          //Test if hopNr is already present. If not, add and draw marker
+          if(metaData.hops.indexOf(hopData.hopNr) === -1) {
+            metaData.hops.push(hopData.hopNr);
+            drawMarker(hopData, generateInfoBoxText(hopData.hostname, hopData.ip, hopData.hopNr), metaData, adjustMapBounds, map);
+            generateTableRow(hopData);
+          }
+
+          //Test if last row has any * If so, then update the row
+          //but do not get any location data, do not draw any markers etc
+          if(key === response.length - 1 && (hopData.hop1 === '*' || hopData.hop2 === '*' || hopData.hop3 === '*')) {
+            generateTableRow(hopData);
+          }
+        }
+      }
+    }
+
+
+    /**
+     * Creates a new marker on the google map.
+     *
+     * @param  {[type]}   hopData  [description]
+     * @param  {Function} callback [description]
+     * @return {[type]}            [description]
+     */
+    function drawMarker(position, InfoBoxText, metaData, callback, map) {
+      console.log(position);
+      if(!isNaN(position.latitude) && !isNaN(position.longitude)) {
+        var pos = new google.maps.LatLng(position.latitude, position.longitude);
+        var newMarker = new google.maps.Marker({
+          position: pos,
+          map: map
+        });
+
+        var infoWindow = new google.maps.InfoWindow({
+          content: InfoBoxText
+        });
+
+        newMarker.addListener('click', function() {
+          infowindow.open(map, newMarker);
+        })
+
+        metaData.coords.push(pos);
+        metaData.markers.push(newMarker);
+
+        if(typeof(callback) == 'function') {
+          callback(map, metaData);
+        }
+
+      }
+    }
+
+
+    /**
+     * Creates a table row for a hop together with a country flag, if the country-code is present.
+     *
+     * @param  {Object} response The hop data
+     * @return {[type]}          [description]
+     */
+    function generateTableRow(hopData) {
+      var countryFlag = '';
+
+      if(hopData.countryCode) {
+        var countryFlag = '<img src="./css/blank.gif" class="flag flag-'  + countryCode + '"></img>';
+
+      }
+      $('#traceroute-table tbody').append("<tr><td>" + countryFlag + "</td><td>" + hopData.hopNr + "</td><td>"
+      + hopData.hostname + "</td><td>" + hopData.ip + "</td><td>"
+      + hopData.rtt1 + "</td><td>" + hopData.rtt2 + "</td><td>" + hopData.rtt3 + "</td>");
+    }
+
 
     function generateHopTable(data) {
       for(var key in data.data) {
@@ -343,15 +438,15 @@ $(document).ready(function() {
 
         //Get the destination-marker via a ping and adjust the map-bounds
         //so start and end are visible.
-        getIpLocationMarker({url: url, infobox: generateInfoBoxText('Destination-Server', '')}, adjustMapBounds);
+        //getIpLocationMarker({url: url, infobox: generateInfoBoxText('Destination-Server', '')}, adjustMapBounds);
 
         $.ajax({
             method: "GET",
             url: "./api/" + url,
             dataType: "json",
             success: function(data) {
-
-              getHops(data.id);
+              drawMap(true, data, startTraceroute);
+              //startTraceroute(data.id);
               //Caution: this is a hack. Since we need to call adjustMapBounds as a callback
               //we set the last added marker again, so we are able to call adjustMapBounds as a callback.
               //
@@ -512,12 +607,12 @@ $(document).ready(function() {
      * the map. This prevents displaying a google map with a zoom to close
      * to see all existing markers. This would be a pitty.
      */
-    function adjustMapBounds() {
-        bounds = new google.maps.LatLngBounds();
-        for(i = 0; i < markers.length; i++) {
-            bounds.extend(markers[i].getPosition());
+    function adjustMapBounds(map, metaData) {
+        metaData.bounds = new google.maps.LatLngBounds();
+        for(i = 0; i < metaData.markers.length; i++) {
+            metaData.bounds.extend(markers[i].getPosition());
         }
-        map.fitBounds(bounds);
+        map.fitBounds(metaData.bounds);
     }
 
     function constructPieChartWTable(data) {
