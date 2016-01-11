@@ -46,17 +46,38 @@ $(document).ready(function() {
     });
 
 
+    /**
+     * Helper function to transform the first character of the passed String
+     * to Uppercase.
+     *
+     * @param  {string} string The String to transform the first character
+     * @return {string}        The transformed String
+     */
     function fstUp(string) {
       return string.charAt(0).toUpperCase() + string.slice(1);
     }
 
+    /**
+     * Updates the URL in the browser so it matches the site the user is on.
+     *
+     * @param  {string} newSubpage  The subpage the user navigated to and that
+     *                              should be displayed in the browser's address bar.
+     * @return {string} url         The subpage in the form of http://.. the user navigated to.
+     */
     function updateUrl(newSubpage) {
       var url = window.location.href;
       url = url.substr(0, url.lastIndexOf("/")) + "/" + newSubpage;
-      return window.history.pushState("", "", url);
+      window.history.pushState("", "", url);
+      return url;
     }
 
 
+    /**
+     * Renders the passed page-template.
+     * 
+     * @param  {[type]} template [description]
+     * @return {[type]}          [description]
+     */
     function renderPage(template) {
 
       $('nav li').removeClass('selected');
@@ -74,7 +95,7 @@ $(document).ready(function() {
           getInfo(); // TODO: Call only when info is needed
         } else if(view == 'view-about') {
         }
-
+        applyListeners();
         return true;
       });
     }
@@ -88,9 +109,7 @@ $(document).ready(function() {
      * Firefox is not doing anything at all. It seems to work fine in Chrome.
      */
     function initMap(showStartMarker, callback) {
-      console.log('initMap');
       window.navigator.geolocation.getCurrentPosition(function(position) {
-        console.log('loading');
         var startMarker;
 
         //Save position as global start-position.
@@ -257,7 +276,6 @@ $(document).ready(function() {
                 getHops(id)
               }, 1000);
               generateHopTable(data);
-              //console.log("IN PROGRESS");
             } else {
               generateHopTable(data);
               $('#submitBtn').css('background-color', '#3E9FFF');
@@ -265,7 +283,6 @@ $(document).ready(function() {
               $('#submitBtn').prop('disabled', false);
               $('#tm-search input').prop('disabled', false);
               $('#tm-search input').css('color', '#000');
-              //console.log("FINISHED");
             }
           }
       });
@@ -281,7 +298,6 @@ $(document).ready(function() {
             hops.push(data.data[key].hopNr);
             var infobox = generateInfoBoxText(data.data[key].host, data.data[key].ip, data.data[key].hopNr);
             if (data.data[key].ip) getIpLocationMarker({url: data.data[key].ip, infobox: infobox}, adjustMapBounds);
-            console.log(data.data[key]);
             if(locationCache[data.data[key].ip] && locationCache[data.data[key].ip].country_code) {
               countryCode = locationCache[data.data[key].ip].country_code.toLowerCase();
               $('#traceroute-table tbody').append("<tr><td><img src='./css/blank.gif' class=\"flag flag-" + countryCode + "\"></img></td><td>" + data.data[key].hopNr + "</td><td>" + data.data[key].host + "</td><td>" + data.data[key].ip + "</td><td>" + data.data[key].hop1 + "</td><td>" + data.data[key].hop2 + "</td><td>" + data.data[key].hop3 + "</td>");
@@ -294,69 +310,65 @@ $(document).ready(function() {
       }
     }
 
+    function applyListeners() {
+      $('#tm-search button').on('click', function(e) {
+        e.preventDefault();
+        removeMarkers();
+        removePolyline();
+        //Delete all markers and coords except the ones for the start (our sever)
+        markers.length = 1;
+        coords.length = 1;
 
-    $('#tm-search button').on('click', function(e) {
+        $('#tm-data-raw ul').html('');
+        $('#traceroute-table tbody').html('');
+        $('#tm-data-raw h2').html('Traceroute output');
 
-      e.preventDefault();
-      removeMarkers();
-      removePolyline();
-      //Delete all markers and coords except the ones for the start (our sever)
-      markers.length = 1;
-      coords.length = 1;
+        var url = $('#tm-search input').val();
 
-      $('#tm-data-raw ul').html('');
-      $('#traceroute-table tbody').html('');
-      $('#tm-data-raw h2').html('Traceroute output');
+        url = url.replace('https://', '').replace('http://', '');
 
-      var url = $('#tm-search input').val();
+        /*
+        As soon as the user clicks on the 'traceroute'-button display a message
+        on the button itself, that we are loading the data. Furthermore, delete
+        hop data from a previous request - if there is any - and print the current
+        url into the header of the tracemap-stats section under the google map.
+         */
+        $(this).html('Loading Data…');
+        $(this).css('background-color', '#aaaaaa');
+        $(this).prop('disabled', true);
+        $('#tm-search input').prop('disabled', true);
+        $('#tm-search input').css('color', '#aaa');
+        $('#tm-data ul').html('');
+        $('#tm-data h2').html('Tracemap-Stats for Destination ' + url);
 
-      url = url.replace('https://', '').replace('http://', '');
+        //Get the destination-marker via a ping and adjust the map-bounds
+        //so start and end are visible.
+        getIpLocationMarker({url: url, infobox: generateInfoBoxText('Destination-Server', '')}, adjustMapBounds);
 
-      /*
-      As soon as the user clicks on the 'traceroute'-button display a message
-      on the button itself, that we are loading the data. Furthermore, delete
-      hop data from a previous request - if there is any - and print the current
-      url into the header of the tracemap-stats section under the google map.
-       */
-      $(this).html('Loading Data…');
-      $(this).css('background-color', '#aaaaaa');
-      $(this).prop('disabled', true);
-      $('#tm-search input').prop('disabled', true);
-      $('#tm-search input').css('color', '#aaa');
-      $('#tm-data ul').html('');
-      $('#tm-data h2').html('Tracemap-Stats for Destination ' + url);
+        $.ajax({
+            method: "GET",
+            url: "./api/" + url,
+            dataType: "json",
+            success: function(data) {
 
-      //Get the destination-marker via a ping and adjust the map-bounds
-      //so start and end are visible.
-      getIpLocationMarker({url: url, infobox: generateInfoBoxText('Destination-Server', '')}, adjustMapBounds);
-
-      $.ajax({
-          method: "GET",
-          url: "./api/" + url,
-          dataType: "json",
-          success: function(data) {
-            // console.log(data);
-            // console.log("./api/traceroute/" + data.id);
-
-            getHops(data.id);
-            //Caution: this is a hack. Since we need to call adjustMapBounds as a callback
-            //we set the last added marker again, so we are able to call adjustMapBounds as a callback.
-            //
-            //AdjustMapBounds can not be added as a callback to every getIpLocationMarker-call (see Line 37)
-            //because this will lead to a stackoverflow. JS is giving a "Too many recursion error".
-            //getIpLocationMarker({url: ip}, adjustMapBounds, true);
-            $('#tm-data').css("display", "block");
-          }
+              getHops(data.id);
+              //Caution: this is a hack. Since we need to call adjustMapBounds as a callback
+              //we set the last added marker again, so we are able to call adjustMapBounds as a callback.
+              //
+              //AdjustMapBounds can not be added as a callback to every getIpLocationMarker-call (see Line 37)
+              //because this will lead to a stackoverflow. JS is giving a "Too many recursion error".
+              //getIpLocationMarker({url: ip}, adjustMapBounds, true);
+              $('#tm-data').css("display", "block");
+            }
+        });
       });
-    });
+    };
 
 
     function getIpLocationMarker(info, callback, drawLine) {
       // TODO: Remove duplicate code
         var url = info.url.replace('www.', '');
         if (locationCache[url]) {
-          // console.log('CACHED');
-          // console.log(url + ' is in ' + locationCache[url].country);
 
           var destLong = locationCache[url].longitude;
           var destLat = locationCache[url].latitude;
@@ -372,7 +384,6 @@ $(document).ready(function() {
                 data = $.parseJSON(data);
 
                 locationCache[url] = data;
-                // console.log(url + ' is in ' + data.country);
 
                 var destLong = data.longitude;
                 var destLat = data.latitude;
