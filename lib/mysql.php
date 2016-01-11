@@ -49,7 +49,7 @@ class Database {
   private function connect() {
     $server = 'localhost'; // this may be an ip address instead
   	$user = 'root';
-  	$pass = 'root';
+  	$pass = '';
   	$database = 'tracemap';
   	$this->db = new mysqli($server, $user, $pass, $database);
   }
@@ -63,7 +63,7 @@ class Database {
    * @return Int              The insert_id returned by the DB after an Insert.
    */
   public function insertURL($url) {
-    $this->db->query('INSERT INTO search (url, requester_ip) VALUES ("'.$url.'", "'.getUserIP().'")');
+    $this->db->query('INSERT INTO search (url, requesterIP) VALUES ("'.$url.'", "'.getUserIP().'")');
     return $this->db->insert_id;
   }
 
@@ -74,16 +74,14 @@ class Database {
    * @param  Int     $searchID The id of the search the traceroute belongs to.
    * @param  array   $out      The array containing all the hops as strings.
    */
-  public function insertTraceroute($searchID, $out) {
-    foreach ($out as $key => $value) {
-      $parts = explode(" ", trim($value));
-      if (is_numeric($parts[0])) {
-        $this->db->query('INSERT INTO hops (search_id, hop_number, hostname, ip, rtt1, rtt2, rtt3)
-        VALUES ("'.$searchID.'", "'.$parts[0].'", "'.$parts[2].'", "'.str_replace(')', '', str_replace('(', '', $parts[3])).'", "'.$parts[5].'", "'.$parts[8].'", "'.$parts[11].'")');
-      } else {
-        $this->db->query('INSERT INTO hops (search_id, message)
-        VALUES ("'.$searchID.'", "'.$value.'")');
-      }
+  public function insertTraceroute($searchID, $data) {
+    if (array_key_exists('message', $data)) {
+      $this->db->query('INSERT INTO hops (searchID, message)
+      VALUES ("'.$searchID.'", "'.$data['message'].'")');
+    } else {
+      $this->db->query('INSERT INTO hops (searchID, hopNumber, hostname, ip, rtt1, rtt2, rtt3)
+      VALUES ("'.$searchID.'", "'.$data['hopNr'].'", "'.$data['hostname'].'", "'.$data['ip'].'", "'.$data['rtt1'].'", "'.$data['rtt2'].'", "'.$data['rtt3'].'")
+      ON DUPLICATE KEY UPDATE hopNumber = "'.$data['hopNr'].'", hostname = "'.$data['hostname'].'", ip = "'.$data['ip'].'", rtt1= "'.$data['rtt1'].'", rtt2 = "'.$data['rtt2'].'", rtt3 = "'.$data['rtt3'].'"');
     }
   }
 
@@ -91,7 +89,7 @@ class Database {
     $result = json_decode($out, true);
 
     if($result['status'] !== 'fail') {
-      $result = $this->db->query('INSERT INTO ip_location_cache (ip, hostname, asn, city, country, country_code, isp, org, region, region_name, timezone, zip, longitude, latitude)
+      $result = $this->db->query('INSERT INTO ip_locations (ip, hostname, asn, city, country, countryCode, isp, org, region, regionName, timezone, zip, longitude, latitude)
       VALUES ("'.$result['query'].'", "'.$hostname.'", "'.$result['as'].'", "'.$result['city'].'", "'.$result['country'].'", "'.$result['countryCode'].'", "'.$result['isp'].'", "'.$result['org'].'",
       "'.$result['region'].'", "'.$result['regionName'].'", "'.$result['timezone'].'", "'.$result['zip'].'", "'.$result['lon'].'", "'.$result['lat'].'")');
     } else {
@@ -101,7 +99,7 @@ class Database {
 
   public function getCachedURL($url) {
     $data = [];
-    $result = $this->db->query("SELECT * FROM ip_location_cache WHERE hostname LIKE '".$url."'");
+    $result = $this->db->query("SELECT * FROM ip_locations WHERE hostname LIKE '".$url."'");
     while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
       $data[] = $row;
     }
@@ -132,7 +130,7 @@ class Database {
 
   public function getAverageHopTime() {
     $data = [];
-    $result = $this->db->query("SELECT AVG(rtt1) as AVG1, AVG(rtt2) as AVG2, AVG(rtt3) as AVG3 FROM `hops` WHERE hop_number > 0");
+    $result = $this->db->query("SELECT AVG(rtt1) as AVG1, AVG(rtt2) as AVG2, AVG(rtt3) as AVG3 FROM `hops` WHERE hopNumber > 0");
     while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
       $data[] = $row;
     }
@@ -150,11 +148,25 @@ class Database {
 
   public function getTraceroute($id) {
     $data = [];
-    $result = $this->db->query("SELECT * FROM hops WHERE search_id = " . $id);
+    $result = $this->db->query("SELECT * FROM hops WHERE searchID = " . $id);
     while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
       $data[] = $row;
     }
     return $data;
+  }
+
+  public function tracerouteFinished($id) {
+    $data = [];
+    $result = $this->db->query("SELECT * FROM search WHERE id = " . $id);
+    while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+      $data[] = $row;
+    }
+    return $data[0]['finished'];
+  }
+
+  public function updateTracerouteFinished($id) {
+    $result = $this->db->query("UPDATE search SET finished = 1 WHERE id = " . $id);
+    return $result;
   }
 
 }

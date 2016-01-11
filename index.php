@@ -124,9 +124,17 @@ $app->get('/api/:url', function ($url) {
  */
 $app->get('/api/traceroute/:id', function ($id) {
     $db = new Database();
-    $result = $db->getTraceroute($id);
-    if (count($result) > 0) {
+    if ($db->tracerouteFinished($id)) {
+      $result = $db->getTraceroute($id);
+      $out = array();
+      $out['data'] = $result;
+      $out['inProgress'] = false;
+      echo(json_encode($out));
+      exit;
+    }
+    if (isset($result) && count($result) > 0) {
       echo(json_encode($result));
+      exit;
     } else {
       $file = fopen('traceroutes/'.$id.'.pid', 'r');
       $pid = fgets($file);
@@ -209,37 +217,37 @@ The following code should give correct results for this traceroute
 
           // Initialize response parameters
           $temp['hopNr'] = '';
-          $temp['host'] = '';
+          $temp['hostname'] = '';
           $temp['ip'] = '';
-          $temp['hop1'] = '';
-          $temp['hop2'] = '';
-          $temp['hop3'] = '';
+          $temp['rtt1'] = '';
+          $temp['rtt2'] = '';
+          $temp['rtt3'] = '';
 
           $temp['hopNr'] = $matches[1][0]; // Set hop number
 
           // Check if there is a timeout (still loading)
           if (count($matches[1]) == 2 && $matches[1][1] == '*') {
-            $temp['hop1'] = '*';
-            $temp['hop2'] = '';
-            $temp['hop3'] = '';
+            $temp['rtt1'] = '*';
+            $temp['rtt2'] = '';
+            $temp['rtt3'] = '';
             array_push($out['data'], $temp);
             continue;
           }
 
           // Check if there are two timeout (still loading)
           if (count($matches[1]) == 3 && $matches[1][1] == '*' && $matches[1][2] == '*') {
-            $temp['hop1'] = '*';
-            $temp['hop2'] = '*';
-            $temp['hop3'] = '';
+            $temp['rtt1'] = '*';
+            $temp['rtt2'] = '*';
+            $temp['rtt3'] = '';
             array_push($out['data'], $temp);
             continue;
           }
 
           // Check if there are three timeout
           if (count($matches[1]) == 4 && $matches[1][1] == '*' && $matches[1][2] == '*' && $matches[1][3] == '*') {
-            $temp['hop1'] = '*';
-            $temp['hop2'] = '*';
-            $temp['hop3'] = '*';
+            $temp['rtt1'] = '*';
+            $temp['rtt2'] = '*';
+            $temp['rtt3'] = '*';
             array_push($out['data'], $temp);
             continue;
           }
@@ -250,7 +258,7 @@ The following code should give correct results for this traceroute
             array_push($out['data'], $temp);
             continue;
           }
-          $temp['host'] = $matches[1][1 + $offset];
+          $temp['hostname'] = $matches[1][1 + $offset];
 
           // Check for timeouts and adjust offset
           while (count($matches[1]) > 2 + $offset && $matches[1][2 + $offset] === '*') {$offset++;}
@@ -267,7 +275,7 @@ The following code should give correct results for this traceroute
           }
           // Check for timeout
           if ($matches[1][3 + $offset] === '*') {
-            $temp['hop1'] = $matches[1][3 + $offset];
+            $temp['rtt1'] = $matches[1][3 + $offset];
             $offset--;
           }
 
@@ -278,7 +286,7 @@ The following code should give correct results for this traceroute
           }
           if (count($matches[1]) > 4 + $offset) {
             if ($matches[1][4 + $offset] === 'ms') {
-              $temp['hop1'] = $matches[1][3 + $offset];
+              $temp['rtt1'] = $matches[1][3 + $offset];
             }
           }
 
@@ -289,7 +297,7 @@ The following code should give correct results for this traceroute
           }
           // Check for timeout
           if ($matches[1][5 + $offset] === '*') {
-            $temp['hop2'] = $matches[1][5 + $offset];
+            $temp['rtt2'] = $matches[1][5 + $offset];
             $offset--;
           }
 
@@ -300,7 +308,7 @@ The following code should give correct results for this traceroute
           }
           if (count($matches[1]) > 6 + $offset) {
             if ($matches[1][6 + $offset] === 'ms') {
-              $temp['hop2'] = $matches[1][5 + $offset];
+              $temp['rtt2'] = $matches[1][5 + $offset];
             }
           }
 
@@ -311,7 +319,7 @@ The following code should give correct results for this traceroute
           }
           // Check for timeout
           if ($matches[1][7 + $offset] === '*') {
-            $temp['hop3'] = $matches[1][7 + $offset];
+            $temp['rtt3'] = $matches[1][7 + $offset];
             $offset--;
           }
 
@@ -322,7 +330,7 @@ The following code should give correct results for this traceroute
           }
           if (count($matches[1]) > 8 + $offset) {
             if ($matches[1][8 + $offset] === 'ms') {
-              $temp['hop3'] = $matches[1][7 + $offset];
+              $temp['rtt3'] = $matches[1][7 + $offset];
             }
           }
           //print_r($temp);
@@ -351,7 +359,7 @@ The following code should give correct results for this traceroute
             array_push($out['data'], $temp);
             continue;
           }
-          $temp['host'] = $matches[1][0 + $offset];
+          $temp['hostname'] = $matches[1][0 + $offset];
 
           while (count($matches[1]) > 1 + $offset && $matches[1][1 + $offset] === '*') {$offset++;}
           if (count($matches[1]) < 2 + $offset) {
@@ -365,7 +373,7 @@ The following code should give correct results for this traceroute
             continue;
           }
           if ($matches[1][2 + $offset] === '*') {
-            $temp['hop1'] = $matches[1][2 + $offset];
+            $temp['rtt1'] = $matches[1][2 + $offset];
             $offset--;
           }
 
@@ -375,7 +383,7 @@ The following code should give correct results for this traceroute
           }
           if (count($matches[1]) > 3 + $offset) {
             if ($matches[1][3 + $offset] === 'ms') {
-              $temp['hop1'] = $matches[1][2 + $offset];
+              $temp['rtt1'] = $matches[1][2 + $offset];
             }
           }
 
@@ -384,7 +392,7 @@ The following code should give correct results for this traceroute
             continue;
           }
           if ($matches[1][4 + $offset] === '*') {
-            $temp['hop2'] = $matches[1][4 + $offset];
+            $temp['rtt2'] = $matches[1][4 + $offset];
             $offset--;
           }
 
@@ -394,7 +402,7 @@ The following code should give correct results for this traceroute
           }
           if (count($matches[1]) > 5 + $offset) {
             if ($matches[1][5 + $offset] === 'ms') {
-              $temp['hop2'] = $matches[1][4 + $offset];
+              $temp['rtt2'] = $matches[1][4 + $offset];
             }
           }
 
@@ -403,7 +411,7 @@ The following code should give correct results for this traceroute
             continue;
           }
           if ($matches[1][6 + $offset] === '*') {
-            $temp['hop3'] = $matches[1][6 + $offset];
+            $temp['rtt3'] = $matches[1][6 + $offset];
             $offset--;
           }
 
@@ -413,7 +421,7 @@ The following code should give correct results for this traceroute
           }
           if (count($matches[1]) > 7 + $offset) {
             if ($matches[1][7 + $offset] === 'ms') {
-              $temp['hop3'] = $matches[1][6 + $offset];
+              $temp['rtt3'] = $matches[1][6 + $offset];
             }
           }
 
@@ -429,6 +437,16 @@ The following code should give correct results for this traceroute
       }
 
     fclose($traceFileHandle);
+
+    if (!$out['inProgress']) {
+      unlink('traceroutes/'.$id.'.pid');
+      unlink('traceroutes/'.$id.'.txt');
+      $db->updateTracerouteFinished($id);
+    }
+
+    foreach ($out['data'] as $key => $value) {
+      $db->insertTraceroute($id, $value);
+    }
 
     echo(json_encode($out));
 });
