@@ -74,11 +74,14 @@ $(document).ready(function() {
       $('div.load-template').load("./templates/" + template + ".html", function() {
         var view = $('main').attr('id');
         if(view == 'view-tracemap') {
+          $('header h2').css('display', 'visible');
           drawMap(true);
         } else if(view == 'view-statistics') {
+          $('header h2').css('visibility', 'visible');
           drawMap(true, [], getTopTraces);
           getInfo();
         } else if(view == 'view-about') {
+          $('header h2').css('visibility', 'hidden');
         }
         applyListeners();
         return template;
@@ -274,7 +277,7 @@ $(document).ready(function() {
         var hopData = response.data[key];
         metaData.drawLine = true;
         if (hopData.message) {
-          $('#tm-data p').text(hopData.message);
+          $('#tm-data h3').text(fstUp(hopData.message));
 
         } else {
           //Test if hopNumber is already present. If not, add and draw marker
@@ -380,7 +383,6 @@ $(document).ready(function() {
 
         $('#tm-data-raw ul').html('');
         $('#traceroute-table tbody').html('');
-        $('#tm-data-raw h2').html('Traceroute output');
 
         var url = $('#tm-search input').val();
 
