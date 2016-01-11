@@ -115,7 +115,6 @@ $(document).ready(function() {
         }
         map.getZoom();
         if(callback && typeof callback == 'function') {
-          console.log('here it comes');
           callback(data, map, metaData);
         }
       });
@@ -150,21 +149,17 @@ $(document).ready(function() {
      * displays the stats in a nice pie chart together with a table.
      * Furthermore, it displays all the hops on the google map.
      */
-    //TODO Refactor
     function getTopTraces(data, map, metaData) {
-      console.log(metaData.markers);
       $.ajax({
         method: "GET",
         url: "./api/info/topTraces",
         success: function(response) {
           response = $.parseJSON(response);
-          console.log(response);
           var dataSet  = new Array();
           for(var i = 0; i < response.length; i++) {
             dataSet.push({count: response[i].traceCount, label: response[i].url});
-            drawTopTens(metaData, response, map);
-
           }
+          drawTopTens(metaData, response, map);
           constructPieChartWTable(dataSet);
         }
       });
@@ -173,7 +168,6 @@ $(document).ready(function() {
     function drawTopTens(metaData, topTenData, map) {
       var points = new Array();
       points[0] = {lat: metaData.start.latitude, lng: metaData.start.longitude};
-
       for(i = 0; i < topTenData.length; i++) {
         points.push({
           lat: Number(topTenData[i].latitude),
@@ -187,21 +181,12 @@ $(document).ready(function() {
           strokeOpacity: 1.0,
           strokeWeight: 2
         });
+        newTopTenMarker = {};
         newTopTenMarker = { latitude: points[1].lat, longitude: points[1].lng, title : topTenData[i].url };
-        drawMarker(newTopTenMarker, generateInfoBoxText(topTenData[i].url, topTenData[i].ip), metaData, adjustMapBounds, map);
+        drawMarker(newTopTenMarker, generateInfoBoxText(topTenData[i].url, topTenData[i].ip), metaData, '', map);
         points.pop();
       }
       adjustMapBounds(map, metaData);
-    }
-
-    function tryToDraw(timeout) {
-      setTimeout(function() {
-          if(coords.length > 1) {
-          drawTopTens(coords);
-        } else {
-          tryToDraw(200);
-        }
-      }, timeout);
     }
 
 
@@ -287,7 +272,7 @@ $(document).ready(function() {
 
         //Save data for one hop in helper-variable
         var hopData = response.data[key];
-
+        metaData.drawLine = true;
         if (hopData.message) {
           $('#tm-data p').text(hopData.message);
 
@@ -335,7 +320,7 @@ $(document).ready(function() {
 
         var objNr = metaData.coords.push(pos);
         metaData.markers.push(newMarker);
-        if(objNr > 1) {
+        if(metaData.drawLine && objNr > 1) {
           drawLine(map, metaData, objNr - 1);
         }
         if(typeof(callback) == 'function') {
