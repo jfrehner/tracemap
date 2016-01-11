@@ -89,10 +89,10 @@ $(document).ready(function() {
       $('div.load-template').load("./templates/" + template + ".html", function() {
         var view = $('main').attr('id');
         if(view == 'view-tracemap') {
-          initMap(true);
+          drawMap(true);
         } else if(view == 'view-statistics') {
           initMap(false, getTopTraces);
-          getInfo(); // TODO: Call only when info is needed
+          drawMap(); // TODO: Call only when info is needed
         } else if(view == 'view-about') {
         }
         applyListeners();
@@ -108,32 +108,32 @@ $(document).ready(function() {
      * navigator.geolocation in Firefox. Sometimes it works quite fine, sometimes
      * Firefox is not doing anything at all. It seems to work fine in Chrome.
      */
-    function initMap(showStartMarker, callback) {
-      window.navigator.geolocation.getCurrentPosition(function(position) {
-        var startMarker;
-
-        //Save position as global start-position.
-        start = position;
-
-        //Initialize empty Arrays for the new traceroute-data
-        markers = new Array();
-        coords = new Array();
-        hops = new Array();
-
-        //Set start marker
-        if(showStartMarker) {
-          startMarker = { latitude: start.coords.latitude, longitude: start.coords.longitude, title: 'Start'};
-        }
-        map = new google.maps.Map(document.getElementById("tm-map-initial"), {center: new google.maps.LatLng(start.coords.latitude, start.coords.longitude), zoom: 15});
-        $('#tm-map-initial').css('background-image', 'none');
-        if(showStartMarker) {
-          //Add the start marker to the google-map if wished
-          addMarker(startMarker, generateInfoBoxText('Our Server', ''));
-        }
-        map.getZoom();
-        if(callback && typeof callback == 'function') callback();
-      });
-    }
+    // function initMap(showStartMarker, callback) {
+    //   window.navigator.geolocation.getCurrentPosition(function(position) {
+    //     var startMarker;
+    //
+    //     //Save position as global start-position.
+    //     start = position;
+    //
+    //     //Initialize empty Arrays for the new traceroute-data
+    //     markers = new Array();
+    //     coords = new Array();
+    //     hops = new Array();
+    //
+    //     //Set start marker
+    //     if(showStartMarker) {
+    //       startMarker = { latitude: start.coords.latitude, longitude: start.coords.longitude, title: 'Start'};
+    //     }
+    //     map = new google.maps.Map(document.getElementById("tm-map-initial"), {center: new google.maps.LatLng(start.coords.latitude, start.coords.longitude), zoom: 15});
+    //     $('#tm-map-initial').css('background-image', 'none');
+    //     if(showStartMarker) {
+    //       //Add the start marker to the google-map if wished
+    //       drawMarker(startMarker, generateInfoBoxText('Our Server', ''));
+    //     }
+    //     map.getZoom();
+    //     if(callback && typeof callback == 'function') callback();
+    //   });
+    // }
 
     /**
      * Initializes a new google map.
@@ -312,16 +312,20 @@ $(document).ready(function() {
           $('#tm-data p').text(hopData.message);
 
         } else {
-          //Test if hopNr is already present. If not, add and draw marker
-          if(metaData.hops.indexOf(hopData.hopNr) === -1) {
-            metaData.hops.push(hopData.hopNr);
-            drawMarker(hopData, generateInfoBoxText(hopData.hostname, hopData.ip, hopData.hopNr), metaData, adjustMapBounds, map);
+          console.log(hopData);
+          console.log(hopData.hopNumber);
+          console.log(metaData.hops);
+          //Test if hopNumber is already present. If not, add and draw marker
+          if(metaData.hops.indexOf(hopData.hopNumber) === -1) {
+            metaData.hops.push(hopData.hopNumber);
+
+            drawMarker(hopData, generateInfoBoxText(hopData.hostname, hopData.ip, hopData.hopNumber), metaData, adjustMapBounds, map);
             generateTableRow(hopData);
           }
 
           //Test if last row has any * If so, then update the row
           //but do not get any location data, do not draw any markers etc
-          if(key === response.length - 1 && (hopData.hop1 === '*' || hopData.hop2 === '*' || hopData.hop3 === '*')) {
+          if(key === response.length - 1 && (hopData.rtt1 === '*' || hopData.rtt2 === '*' || hopData.rtt3 === '*')) {
             generateTableRow(hopData);
           }
         }
@@ -337,8 +341,7 @@ $(document).ready(function() {
      * @return {[type]}            [description]
      */
     function drawMarker(position, InfoBoxText, metaData, callback, map) {
-      console.log(position);
-      if(!isNaN(position.latitude) && !isNaN(position.longitude)) {
+      if(position.latitude && position.longitude) {
         var pos = new google.maps.LatLng(position.latitude, position.longitude);
         var newMarker = new google.maps.Marker({
           position: pos,
@@ -350,7 +353,7 @@ $(document).ready(function() {
         });
 
         newMarker.addListener('click', function() {
-          infowindow.open(map, newMarker);
+          infoWindow.open(map, newMarker);
         })
 
         metaData.coords.push(pos);
@@ -374,45 +377,44 @@ $(document).ready(function() {
       var countryFlag = '';
 
       if(hopData.countryCode) {
-        var countryFlag = '<img src="./css/blank.gif" class="flag flag-'  + countryCode + '"></img>';
-
+        var countryFlag = '<img src="./css/blank.gif" class="flag flag-'  + hopData.countryCode + '"></img>';
       }
-      $('#traceroute-table tbody').append("<tr><td>" + countryFlag + "</td><td>" + hopData.hopNr + "</td><td>"
+      $('#traceroute-table tbody').append("<tr><td>" + countryFlag + "</td><td>" + hopData.hopNumber + "</td><td>"
       + hopData.hostname + "</td><td>" + hopData.ip + "</td><td>"
       + hopData.rtt1 + "</td><td>" + hopData.rtt2 + "</td><td>" + hopData.rtt3 + "</td>");
     }
 
 
-    function generateHopTable(data) {
-      for(var key in data.data) {
-        var countryCode = '';
-        if (data.data[key].message) {
-          $('#tm-data p').text(data.data[key].message);
-        } else {
-          if(hops.indexOf(data.data[key].hopNr) === -1) {
-            hops.push(data.data[key].hopNr);
-            var infobox = generateInfoBoxText(data.data[key].host, data.data[key].ip, data.data[key].hopNr);
-            if (data.data[key].ip) getIpLocationMarker({url: data.data[key].ip, infobox: infobox}, adjustMapBounds);
-            if(locationCache[data.data[key].ip] && locationCache[data.data[key].ip].country_code) {
-              countryCode = locationCache[data.data[key].ip].country_code.toLowerCase();
-              $('#traceroute-table tbody').append("<tr><td><img src='./css/blank.gif' class=\"flag flag-" + countryCode + "\"></img></td><td>" + data.data[key].hopNr + "</td><td>" + data.data[key].host + "</td><td>" + data.data[key].ip + "</td><td>" + data.data[key].hop1 + "</td><td>" + data.data[key].hop2 + "</td><td>" + data.data[key].hop3 + "</td>");
-            } else {
-              countryCode = '';
-              $('#traceroute-table tbody').append("<tr><td></td><td>" + data.data[key].hopNr + "</td><td>" + data.data[key].host + "</td><td>" + data.data[key].ip + "</td><td>" + data.data[key].hop1 + "</td><td>" + data.data[key].hop2 + "</td><td>" + data.data[key].hop3 + "</td>");
-            }
-          }
-        }
-      }
-    }
+    // function generateHopTable(data) {
+    //   for(var key in data.data) {
+    //     var countryCode = '';
+    //     if (data.data[key].message) {
+    //       $('#tm-data p').text(data.data[key].message);
+    //     } else {
+    //       if(hops.indexOf(data.data[key].hopNr) === -1) {
+    //         hops.push(data.data[key].hopNr);
+    //         var infobox = generateInfoBoxText(data.data[key].host, data.data[key].ip, data.data[key].hopNr);
+    //         if (data.data[key].ip) getIpLocationMarker({url: data.data[key].ip, infobox: infobox}, adjustMapBounds);
+    //         if(locationCache[data.data[key].ip] && locationCache[data.data[key].ip].country_code) {
+    //           countryCode = locationCache[data.data[key].ip].country_code.toLowerCase();
+    //           $('#traceroute-table tbody').append("<tr><td><img src='./css/blank.gif' class=\"flag flag-" + countryCode + "\"></img></td><td>" + data.data[key].hopNr + "</td><td>" + data.data[key].host + "</td><td>" + data.data[key].ip + "</td><td>" + data.data[key].hop1 + "</td><td>" + data.data[key].hop2 + "</td><td>" + data.data[key].hop3 + "</td>");
+    //         } else {
+    //           countryCode = '';
+    //           $('#traceroute-table tbody').append("<tr><td></td><td>" + data.data[key].hopNr + "</td><td>" + data.data[key].host + "</td><td>" + data.data[key].ip + "</td><td>" + data.data[key].hop1 + "</td><td>" + data.data[key].hop2 + "</td><td>" + data.data[key].hop3 + "</td>");
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
 
     function applyListeners() {
       $('#tm-search button').on('click', function(e) {
         e.preventDefault();
-        removeMarkers();
-        removePolyline();
+        // removeMarkers();
+        // removePolyline();
         //Delete all markers and coords except the ones for the start (our sever)
-        markers.length = 1;
-        coords.length = 1;
+        // markers.length = 1;
+        // coords.length = 1;
 
         $('#tm-data-raw ul').html('');
         $('#traceroute-table tbody').html('');
@@ -460,36 +462,36 @@ $(document).ready(function() {
     };
 
 
-    function getIpLocationMarker(info, callback, drawLine) {
-      // TODO: Remove duplicate code
-        var url = info.url.replace('www.', '');
-        if (locationCache[url]) {
-
-          var destLong = locationCache[url].longitude;
-          var destLat = locationCache[url].latitude;
-          var destMarker;
-
-          destMarker = { latitude: destLat, longitude: destLong, title: 'Destination'};
-          return addMarker(destMarker, info.infobox, callback, drawLine);
-        } else {
-          $.ajax({
-              method: "GET",
-              url: "./api/ping/" + url,
-              success: function(data) {
-                data = $.parseJSON(data);
-
-                locationCache[url] = data;
-
-                var destLong = data.longitude;
-                var destLat = data.latitude;
-                var destMarker;
-
-                destMarker = { latitude: destLat, longitude: destLong, title: 'Destination'};
-                return addMarker(destMarker, info.infobox, callback, drawLine);
-              }
-          });
-        }
-    }
+    // function getIpLocationMarker(info, callback, drawLine) {
+    //   // TODO: Remove duplicate code
+    //     var url = info.url.replace('www.', '');
+    //     if (locationCache[url]) {
+    //
+    //       var destLong = locationCache[url].longitude;
+    //       var destLat = locationCache[url].latitude;
+    //       var destMarker;
+    //
+    //       destMarker = { latitude: destLat, longitude: destLong, title: 'Destination'};
+    //       return addMarker(destMarker, info.infobox, callback, drawLine);
+    //     } else {
+    //       $.ajax({
+    //           method: "GET",
+    //           url: "./api/ping/" + url,
+    //           success: function(data) {
+    //             data = $.parseJSON(data);
+    //
+    //             locationCache[url] = data;
+    //
+    //             var destLong = data.longitude;
+    //             var destLat = data.latitude;
+    //             var destMarker;
+    //
+    //             destMarker = { latitude: destLat, longitude: destLong, title: 'Destination'};
+    //             return addMarker(destMarker, info.infobox, callback, drawLine);
+    //           }
+    //       });
+    //     }
+    // }
 
 
     /**
@@ -518,44 +520,44 @@ $(document).ready(function() {
       return string;
     }
 
-    function addMarker(newMarker, contentString, callback, drawLine) {
-        if(!isNaN(newMarker.latitude) && !isNaN(newMarker.longitude)) {
-            var pos = new google.maps.LatLng(newMarker.latitude, newMarker.longitude);
-            var myNewMarker = new google.maps.Marker({
-                position: pos,
-                map: map,
-                title: newMarker.title
-            });
-
-            if (contentString) {
-              var infowindow = new google.maps.InfoWindow({
-                content: contentString
-              });
-
-              myNewMarker.addListener('click', function() {
-                infowindow.open(map, myNewMarker);
-              });
-            }
-            markers.push(myNewMarker);
-            coords.push(pos);
-            if(typeof(callback) == 'function') {
-              callback();
-            }
-            return pos;
-        }
-        if(drawLine) {
-            var destCoord = coords.splice(1, 1);
-            coords.push(destCoord[0]);
-            path = new google.maps.Polyline({
-                path: coords,
-                map: map,
-                geodesic: true,
-                strokeColor: '#FF0000',
-                strokeOpacity: 1.0,
-                strokeWeight: 2
-            });
-        }
-    }
+    // function addMarker(newMarker, contentString, callback, drawLine) {
+    //     if(!isNaN(newMarker.latitude) && !isNaN(newMarker.longitude)) {
+    //         var pos = new google.maps.LatLng(newMarker.latitude, newMarker.longitude);
+    //         var myNewMarker = new google.maps.Marker({
+    //             position: pos,
+    //             map: map,
+    //             title: newMarker.title
+    //         });
+    //
+    //         if (contentString) {
+    //           var infowindow = new google.maps.InfoWindow({
+    //             content: contentString
+    //           });
+    //
+    //           myNewMarker.addListener('click', function() {
+    //             infowindow.open(map, myNewMarker);
+    //           });
+    //         }
+    //         markers.push(myNewMarker);
+    //         coords.push(pos);
+    //         if(typeof(callback) == 'function') {
+    //           callback();
+    //         }
+    //         return pos;
+    //     }
+    //     if(drawLine) {
+    //         var destCoord = coords.splice(1, 1);
+    //         coords.push(destCoord[0]);
+    //         path = new google.maps.Polyline({
+    //             path: coords,
+    //             map: map,
+    //             geodesic: true,
+    //             strokeColor: '#FF0000',
+    //             strokeOpacity: 1.0,
+    //             strokeWeight: 2
+    //         });
+    //     }
+    // }
 
 
     function drawTopTens(coords) {
@@ -572,32 +574,6 @@ $(document).ready(function() {
           strokeWeight: 2
         });
         points.pop();
-      }
-    }
-
-
-    /**
-     * Removes all existing markers from the google map they're on.
-     * This is necessary to get a "clean" google map in case of a second
-     * tracemap-request after a first one.
-     */
-    function removeMarkers() {
-      if (markers) {
-        for(i = 1; i < markers.length; i++) {
-            markers[i].setMap(null);
-        }
-      }
-    }
-
-
-    /**
-     * Removes the existing polyline from the google map it's on.
-     * This is necessary to get a "clean" google map in case of a second
-     * tracemap-request after a first one.
-     */
-    function removePolyline() {
-      if(path) {
-        path.setMap(null);
       }
     }
 
