@@ -205,6 +205,7 @@ The following code should give correct results for this traceroute
         // $line = "13  * *";
         // $line = "13  *";
         // $line = "17  * edge-star-mini-shv-17-prn1.facebook.com (69.171.230.68)  205.513 ms  205.184 ms";
+        // $line = "15   (72.8.162.46)  266.393 ms  224.981 ms  222.625 ms";
 
         $regex = '/(?:\s*)(\S+)/'; // Split whitespaces
         preg_match_all($regex, $line, $matches);
@@ -259,7 +260,12 @@ The following code should give correct results for this traceroute
             array_push($out['data'], $temp);
             continue;
           }
-          $temp['hostname'] = $matches[1][1 + $offset];
+
+          if (substr($matches[1][1 + $offset], 0, 1) == '(') {
+            $offset--;
+          } else {
+            $temp['hostname'] = $matches[1][1 + $offset];
+          }
 
           // Check for timeouts and adjust offset
           while (count($matches[1]) > 2 + $offset && $matches[1][2 + $offset] === '*') {$offset++;}
