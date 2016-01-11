@@ -25,7 +25,7 @@ $app = new \Slim\Slim();
 /**
  * Get-request to the root of our app renders the template for the index-page.
  */
-$app->get('/', function () use ($app) {
+$app->get('/(:site)', function () use ($app) {
   $app->render('index.php', array(
 		'page_title' => "Tracemap"
   ));
@@ -35,21 +35,21 @@ $app->get('/', function () use ($app) {
 /**
  * Get-request to /stats renders the template for the stats-page.
  */
-$app->get('/stats/', function () use ($app) {
-    $app->render('stats.php', array(
-        'page_title' => 'Statistics'
-    ));
-});
+// $app->get('/statistics/', function () use ($app) {
+//     $app->render('index.php', array(
+//         'page_title' => 'Statistics'
+//     ));
+// });
 
 
 /**
  * Get-request to /about renders the template for the about-page.
  */
-$app->get('/about/', function () use ($app) {
-    $app->render('about.php', array(
-        'page_title' => 'About'
-    ));
-});
+// $app->get('/about/', function () use ($app) {
+//     $app->render('index.php', array(
+//         'page_title' => 'About'
+//     ));
+// });
 
 
 /**

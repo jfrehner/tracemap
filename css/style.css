@@ -217,14 +217,14 @@ input:hover {
 /**********************************************
                6. STATS STYLES
  **********************************************/
-#tm-google-map-stats figure {
+#tm-google-map-statistics figure {
     margin: 0 auto;
     width: 80%;
     height: 500px;
     background-color: #ccc;
 }
 
-#view-stats table {
+#view-statistics table {
     display: table;
     width: 50%;
     margin: 0 auto 80px;
@@ -232,28 +232,28 @@ input:hover {
     border-bottom: 3px solid black;
 }
 
-#view-stats thead {
+#view-statistics thead {
     font-weight: bold;
     font-style: italic;
     border-bottom: 2px solid black;
 }
 
-#view-stats table tr {
+#view-statistics table tr {
     border-top: 1px solid #ccc;
 }
 
-#view-stats tr.hover,
-#view-stats tr:hover {
+#view-statistics tr.hover,
+#view-statistics tr:hover {
     background-color: #3E9FFF;
     color: #fff;
 }
 
-#view-stats table td {
+#view-statistics table td {
     width: 75%;
     padding: 8px;
 }
 
-#view-stats table td:last-child {
+#view-statistics table td:last-child {
     width: 25%;
 }
 
