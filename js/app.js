@@ -399,11 +399,16 @@ $(document).ready(function() {
       var countryFlag = '';
 
       if(hopData.countryCode) {
-        var countryFlag = '<img src="./css/blank.gif" class="flag flag-'  + hopData.countryCode + '"></img>';
+        var countryFlag = '<img src="./css/blank.gif" class="flag flag-'  + hopData.countryCode.toLowerCase() + '"></img>';
       }
+      var rtt1, rtt2, rtt3, hostname;
+      if(hopData.rtt1 === '0')  { rtt1 = '*'; } else { rtt1 = hopData.rtt1; };
+      if(hopData.rtt2 === '0') { rtt2 = '*'; } else { rtt2 = hopData.rtt2; };
+      if(hopData.rtt3 === '0') { rtt3 = '*'; } else { rtt3 = hopData.rtt3; };
+      if(hopData.hostname === null) { hostname = ''; } else { hostname = hopData.hostname; };
       $('#traceroute-table tbody').append("<tr><td>" + countryFlag + "</td><td>" + hopData.hopNumber + "</td><td>"
-      + hopData.hostname + "</td><td>" + hopData.ip + "</td><td>"
-      + hopData.rtt1 + "</td><td>" + hopData.rtt2 + "</td><td>" + hopData.rtt3 + "</td>");
+      + hostname + "</td><td>" + hopData.ip + "</td><td>"
+      + rtt1 + "</td><td>" + rtt2 + "</td><td>" + rtt3 + "</td>");
     }
 
 
