@@ -316,3 +316,7 @@ text {
   box-shadow: 0px 0px 5px #aaa;
   margin: 0 auto;
 }
+
+#view-about {
+  margin-top: -50px;
+}
