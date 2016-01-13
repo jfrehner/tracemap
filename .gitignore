@@ -3,4 +3,3 @@ composer.lock
 .idea/
 traceroutes
 lib/config.php
-.htaccess
