@@ -1,14 +1,17 @@
 <main id="view-about">
+  <h2>About us</h2>
   <p>
     Hi! Thanks for visiting our site!
     We are a team of two students at the university of applied sciences in switzerland. In one of our courses we had to build a web-app with different web-technologies.
     You are now looking at the result of our work.
   </p>
+  <h2>How tracemap works</h2>
   <p>
     Normally, the output of a traceroute-command in the terminal is quite technical and not fun to look at. That's why we decided to build a 'traceroute'-visualizer and beautify all the information. This app works through executing a 'traceroute'-command
     on our server (who stands somewhere in great, big Canada) and sending all the received 'hops' (aka IP-addresses) to a geolocater API (a shoutout to the folks at <a href="http://www.ip-api.com">ip-api.com</a> who provide their service for free!). The received
     geolocation-info is then put into a google-map and the different hops are linked with a beautiful line, so one can follow a request from start to finish (hopefully).
   </p>
+  <h2>Some considerations</h2>
   <p>
     It would not be a real-world web-app if there would be completely no problems... (sadly). It can be that the app prints out rather intertwined paths the request takes. Unfortunately, geolocation of an ip-address is not that easy, and the free database we're using
     can have some wrong locations for a given ip. Furthermore it is possible that a 'traceroute' never reaches an end - hops in between the start and your desired destination address may block a traceroute-request for various (mostly security) reasons.

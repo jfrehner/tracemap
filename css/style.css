@@ -322,12 +322,20 @@ text {
 #view-about {
   display: block;
   width: 70%;
-  padding: 15px;
+  padding: 15px 25px;
   background-color: #fff;
   box-shadow: 0px 0px 5px #aaa;
   margin: 0 auto;
 }
 
 #view-about {
-  margin-top: -50px;
+  margin-top: -30px;
+}
+
+#view-about h2:first-child {
+  margin-top: 10px;
+}
+
+#view-about h2 {
+  margin-top: 40px;
 }
