@@ -94,7 +94,7 @@ $(document).ready(function() {
         method: "GET",
         url: "./api/info/hoptime/" + data.id,
         success: function(response) {
-          console.log(data.id);
+          $('#hoptime-graph').html("");
           response = $.parseJSON(response);
           buildHopTimeGraph(response);
         }
@@ -106,6 +106,9 @@ $(document).ready(function() {
       var rtt1 = new Array();
       var rtt2 = new Array();
       var rtt3 = new Array();
+      rtt1.push({time: 0, hop: '', hopNr: 0});
+      rtt2.push({time: 0, hop: '', hopNr: 0});
+      rtt3.push({time: 0, hop: '', hopNr: 0});
       var minTime = 10000;
       var maxTime = 0;
       var maxHopNr = 0;
@@ -119,23 +122,24 @@ $(document).ready(function() {
         maxTime = maxTime < innerMax? innerMax : maxTime;
         maxHopNr++;
       }
-
-      var vis = d3.select("#hoptime-graph"),
-                    WIDTH = 800,
-                    HEIGHT = 300,
-                    MARGINS = {
-                        top: 20,
-                        right: 20,
-                        bottom: 20,
-                        left: 50
-                    },
-                    xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([1, maxHopNr]),
-                    yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([minTime, maxTime]),
-                    xAxis = d3.svg.axis()
-                                  .scale(xScale),
-                    yAxis = d3.svg.axis()
-                                  .scale(yScale)
-                                  .orient("left");
+      $('#tm-data-hoptime-graph').css("display", "block");
+      var vis = d3.select("#hoptime-graph");
+      var WIDTH = 800;
+      var HEIGHT = 300;
+      var MARGINS = {
+        top: 20,
+        right: 20,
+        bottom: 20,
+        left: 50
+      };
+      var xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([0, maxHopNr]);
+      var yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([0, maxTime]);
+      var xAxis = d3.svg.axis()
+                    .scale(xScale);
+      var yAxis = d3.svg.axis()
+                    .scale(yScale)
+                    .tickFormat(d3.format(""))
+                    .orient("left");
 
       vis.append("text")      // text label for the x axis
         .attr("x", 400)
@@ -151,40 +155,38 @@ $(document).ready(function() {
         .style("text-transform", "uppercase")
         .style("font-weight", "bold")
         .style("text-anchor", "middle")
-        .text("Time");
+        .text("Time in miliseconds");
       vis.append("svg:g")
-          .attr("class", "x axis")
-          .attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")")
-          .call(xAxis);
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")")
+        .call(xAxis);
       vis.append("svg:g")
-          .attr("class", "y axis")
-          .attr("transform", "translate(" + (MARGINS.left) + ",0)")
-          .call(yAxis);
+        .attr("class", "y axis")
+        .attr("transform", "translate(" + (MARGINS.left) + ",0)")
+        .call(yAxis);
       var lineGen = d3.svg.line()
-          .x(function(d) {
-              return xScale(d.hopNr);
-          })
-          .y(function(d) {
-              return yScale(d.time);
-          })
-          .interpolate("basis");
+        .x(function(d) {
+          return xScale(d.hopNr);
+        })
+        .y(function(d) {
+          return yScale(d.time);
+        })
+        .interpolate("basis");
       vis.append('svg:path')
-          .attr('d', lineGen(rtt1))
-          .attr('stroke', 'green')
-          .attr('stroke-width', 2)
-          .attr('fill', 'none');
+        .attr('d', lineGen(rtt1))
+        .attr('stroke', 'green')
+        .attr('stroke-width', 2)
+        .attr('fill', 'none');
       vis.append('svg:path')
-          .attr('d', lineGen(rtt2))
-          .attr('stroke', 'blue')
-          .attr('stroke-width', 2)
-          .attr('fill', 'none');
+        .attr('d', lineGen(rtt2))
+        .attr('stroke', 'blue')
+        .attr('stroke-width', 2)
+        .attr('fill', 'none');
       vis.append('svg:path')
-          .attr('d', lineGen(rtt3))
-          .attr('stroke', 'orange')
-          .attr('stroke-width', 2)
-          .attr('fill', 'none');
-
-      $('#hoptime-graph').css("display", "block");
+        .attr('d', lineGen(rtt3))
+        .attr('stroke', 'orange')
+        .attr('stroke-width', 2)
+        .attr('fill', 'none');
     }
 
 
