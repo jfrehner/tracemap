@@ -133,10 +133,6 @@ $app->get('/api/traceroute/:id', function ($id) {
       $out['inProgress'] = false;
       echo(json_encode($out));
       exit;
-    }
-    if (isset($result) && count($result) > 0) {
-      echo(json_encode($result));
-      exit;
     } else {
       $file = fopen('traceroutes/'.$id.'.pid', 'r');
       $pid = fgets($file);
@@ -229,7 +225,7 @@ The following code should give correct results for this traceroute
 
           // Check if there is a timeout (still loading)
           if (count($matches[1]) == 2 && $matches[1][1] == '*') {
-            $temp['rtt1'] = '*';
+            $temp['rtt1'] = '-1';
             $temp['rtt2'] = '';
             $temp['rtt3'] = '';
             array_push($out['data'], $temp);
@@ -238,8 +234,8 @@ The following code should give correct results for this traceroute
 
           // Check if there are two timeout (still loading)
           if (count($matches[1]) == 3 && $matches[1][1] == '*' && $matches[1][2] == '*') {
-            $temp['rtt1'] = '*';
-            $temp['rtt2'] = '*';
+            $temp['rtt1'] = '-1';
+            $temp['rtt2'] = '-1';
             $temp['rtt3'] = '';
             array_push($out['data'], $temp);
             continue;
@@ -247,9 +243,9 @@ The following code should give correct results for this traceroute
 
           // Check if there are three timeout
           if (count($matches[1]) == 4 && $matches[1][1] == '*' && $matches[1][2] == '*' && $matches[1][3] == '*') {
-            $temp['rtt1'] = '*';
-            $temp['rtt2'] = '*';
-            $temp['rtt3'] = '*';
+            $temp['rtt1'] = '-1';
+            $temp['rtt2'] = '-1';
+            $temp['rtt3'] = '-1';
             array_push($out['data'], $temp);
             continue;
           }

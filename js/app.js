@@ -385,9 +385,9 @@ $(document).ready(function() {
             metaData.hops.push(hopData.hopNumber);
 
             drawMarker(hopData, generateInfoBoxText(hopData.hostname, hopData.ip, hopData.hopNumber), metaData, adjustMapBounds, map);
-            generateTableRow(hopData);
-          }
 
+          }
+generateTableRow(hopData);
           //Test if last row has any * If so, then update the row
           //but do not get any location data, do not draw any markers etc
           if(key === response.length - 1 && (hopData.rtt1 === '*' || hopData.rtt2 === '*' || hopData.rtt3 === '*')) {
@@ -467,11 +467,18 @@ $(document).ready(function() {
         var countryFlag = '<img src="./css/blank.gif" class="flag flag-'  + hopData.countryCode.toLowerCase() + '"></img>';
       }
       var rtt1, rtt2, rtt3, hostname;
-      if(hopData.rtt1 === '0')  { rtt1 = '*'; } else { rtt1 = hopData.rtt1; };
-      if(hopData.rtt2 === '0') { rtt2 = '*'; } else { rtt2 = hopData.rtt2; };
-      if(hopData.rtt3 === '0') { rtt3 = '*'; } else { rtt3 = hopData.rtt3; };
-      if(hopData.hostname === null) { hostname = ''; } else { hostname = hopData.hostname; };
-      $('#traceroute-table tbody').append("<tr><td>" + countryFlag + "</td><td>" + hopData.hopNumber + "</td><td>"
+      if (hopData.rtt1 === '-1') { rtt1 = '*'; }
+      else if (hopData.rtt1 === '0') { rtt1 = '' }
+      else { rtt1 = hopData.rtt1; };
+      if (hopData.rtt2 === '-1') { rtt2 = '*'; }
+      else if (hopData.rtt2 === '0') { rtt2 = '' }
+      else { rtt2 = hopData.rtt2; };
+      if (hopData.rtt3 === '-1') { rtt3 = '*'; }
+      else if (hopData.rtt3 === '0') { rtt3 = '' }
+      else { rtt3 = hopData.rtt3; };
+      if (hopData.hostname === null) { hostname = ''; } else { hostname = hopData.hostname; };
+      if ($('#traceroute-table tbody tr.' + hopData.hopNumber)) $('#traceroute-table tbody tr#' + hopData.hopNumber).remove();
+      $('#traceroute-table tbody').append("<tr id='" + hopData.hopNumber + "'><td>" + countryFlag + "</td><td>" + hopData.hopNumber + "</td><td>"
       + hostname + "</td><td>" + hopData.ip + "</td><td>"
       + rtt1 + "</td><td>" + rtt2 + "</td><td>" + rtt3 + "</td>");
     }
