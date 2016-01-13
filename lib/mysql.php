@@ -136,9 +136,29 @@ class Database {
     return $data;
   }
 
+  public function getAllHopTimes() {
+    $data = [];
+    //$result = $this->db->query("SELECT *, COUNT(url) as traceCount FROM search s1 INNER JOIN hops ON s1.id = hops.searchID INNER JOIN ip_locations USING (ip) WHERE hopNumber = (SELECT MAX(hopNumber) FROM search s2 INNER JOIN hops ON s2.id = hops.searchID INNER JOIN ip_locations USING (ip) WHERE s1.id = s2.id GROUP BY searchID) GROUP BY url ORDER BY tracecount DESC LIMIT 10");
+    $result = $this->db->query("SELECT ROUND(rtt1, 1) as rtt1, ROUND(rtt2, 1) as rtt2, ROUND(rtt3, 1) as rtt3 FROM hops WHERE rtt1 IS NOT NULL AND rtt1 > 0 AND rtt2 IS NOT NULL AND rtt2 > 0 AND rtt3 IS NOT NULL AND rtt3 > 0");
+    while($row = $result->fetch_array(MYSQLI_ASSOC)) {
+      $data[] = $row['rtt1'];
+      $data[] = $row['rtt2'];
+      $data[] = $row['rtt3'];
+    }
+    return $data;
+  }
+
+  public function getHopTimesOfID($id) {
+    $data = [];
+    $result = $this->db->query("SELECT rtt1, rtt2, rtt3, hostname FROM hops WHERE searchID = " . $id . " AND rtt1 IS NOT NULL AND rtt1 > 0 AND rtt2 IS NOT NULL AND rtt2 > 0 AND rtt3 IS NOT NULL AND rtt3 > 0");
+    while($row = $result->fetch_array(MYSQLI_ASSOC)) {
+      $data[] = $row;
+    }
+    return $data;
+  }
+
   public function getTopTraces() {
     $data = [];
-    //$result = $this->db->query("SELECT *, count(url) as traceCount FROM `search` GROUP BY url ORDER BY traceCount DESC LIMIT 10");
     $result = $this->db->query("SELECT *, COUNT(url) as traceCount FROM search s1 INNER JOIN hops ON s1.id = hops.searchID INNER JOIN ip_locations USING (ip) WHERE hopNumber = (SELECT MAX(hopNumber) FROM search s2 INNER JOIN hops ON s2.id = hops.searchID INNER JOIN ip_locations USING (ip) WHERE s1.id = s2.id GROUP BY searchID) GROUP BY url ORDER BY tracecount DESC LIMIT 10");
 
     while ($row = $result->fetch_array(MYSQLI_ASSOC)) {

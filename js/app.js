@@ -89,6 +89,105 @@ $(document).ready(function() {
     }
 
 
+    function displayHopTimesOfID(data) {
+      $.ajax({
+        method: "GET",
+        url: "./api/info/hoptime/" + data.id,
+        success: function(response) {
+          console.log(data.id);
+          response = $.parseJSON(response);
+          buildHopTimeGraph(response);
+        }
+      });
+    }
+
+
+    function buildHopTimeGraph(data) {
+      var rtt1 = new Array();
+      var rtt2 = new Array();
+      var rtt3 = new Array();
+      var minTime = 10000;
+      var maxTime = 0;
+      var maxHopNr = 0;
+      for(i = 0; i < data.length; i++) {
+        rtt1.push({time: data[i].rtt1, hop: data[i].hostname, hopNr: i + 1});
+        rtt2.push({time: data[i].rtt2, hop: data[i].hostname, hopNr: i + 1});
+        rtt3.push({time: data[i].rtt3, hop: data[i].hostname, hopNr: i + 1});
+        var innerMin = Math.min(data[i].rtt1, data[i].rtt2, data[i].rtt3);
+        var innerMax = Math.max(data[i].rtt1, data[i].rtt2, data[i].rtt3)
+        minTime = minTime > innerMin? innerMin : minTime;
+        maxTime = maxTime < innerMax? innerMax : maxTime;
+        maxHopNr++;
+      }
+
+      var vis = d3.select("#hoptime-graph"),
+                    WIDTH = 800,
+                    HEIGHT = 300,
+                    MARGINS = {
+                        top: 20,
+                        right: 20,
+                        bottom: 20,
+                        left: 50
+                    },
+                    xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([1, maxHopNr]),
+                    yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([minTime, maxTime]),
+                    xAxis = d3.svg.axis()
+                                  .scale(xScale),
+                    yAxis = d3.svg.axis()
+                                  .scale(yScale)
+                                  .orient("left");
+
+      vis.append("text")      // text label for the x axis
+        .attr("x", 400)
+        .attr("y",  320)
+        .style("text-anchor", "middle")
+        .style("text-transform", "uppercase")
+        .style("font-weight", "bold")
+        .text("Hop-Number");
+      vis.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -160)
+        .attr("dy", "1em")
+        .style("text-transform", "uppercase")
+        .style("font-weight", "bold")
+        .style("text-anchor", "middle")
+        .text("Time");
+      vis.append("svg:g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")")
+          .call(xAxis);
+      vis.append("svg:g")
+          .attr("class", "y axis")
+          .attr("transform", "translate(" + (MARGINS.left) + ",0)")
+          .call(yAxis);
+      var lineGen = d3.svg.line()
+          .x(function(d) {
+              return xScale(d.hopNr);
+          })
+          .y(function(d) {
+              return yScale(d.time);
+          })
+          .interpolate("basis");
+      vis.append('svg:path')
+          .attr('d', lineGen(rtt1))
+          .attr('stroke', 'green')
+          .attr('stroke-width', 2)
+          .attr('fill', 'none');
+      vis.append('svg:path')
+          .attr('d', lineGen(rtt2))
+          .attr('stroke', 'blue')
+          .attr('stroke-width', 2)
+          .attr('fill', 'none');
+      vis.append('svg:path')
+          .attr('d', lineGen(rtt3))
+          .attr('stroke', 'orange')
+          .attr('stroke-width', 2)
+          .attr('fill', 'none');
+
+      $('#hoptime-graph').css("display", "block");
+    }
+
+
     /**
      * Initializes a new google map.
      */
@@ -255,6 +354,7 @@ $(document).ready(function() {
               processTracerouteData(data, map, metaData);
             } else {
               processTracerouteData(data, map, metaData);
+              displayHopTimesOfID(data);
               $('#submitBtn').css('background-color', '#3E9FFF');
               $('#submitBtn').html('Trace it!');
               $('#submitBtn').prop('disabled', false);

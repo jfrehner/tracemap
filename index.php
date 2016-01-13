@@ -495,5 +495,29 @@ $app->get('/api/info/topTraces', function () {
     echo(json_encode($results));
 });
 
+
+/**
+ * Get-request to get all hop times that are stored in the DB.
+ */
+$app->get('/api/info/hoptimes', function() {
+  $db = new Database();
+  $results = $db->getAllHopTimes();
+
+  echo(json_encode($results));
+});
+
+
+/**
+ * Get-request to get all hop times of the current request.
+ */
+$app->get('/api/info/hoptime/:id', function($id) {
+  $db = new Database();
+  $results = $db->getHopTimesOfID($id);
+
+  echo(json_encode($results));
+});
+
+
+
 $app->run();
 ?>
