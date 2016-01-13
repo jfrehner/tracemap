@@ -502,6 +502,25 @@ $app->get('/api/info/hoptimes', function() {
   echo(json_encode($results));
 });
 
+/**
+ * Get-request to get a list of contries we had hops in, as well as a count of how many times we had hops in that country.
+ */
+$app->get('/api/info/countryCount', function() {
+  $db = new Database();
+  $results = $db->getCountryCount();
+
+  echo(json_encode($results));
+});
+
+/**
+ * Get-request to get a the average count of hops per route.
+ */
+$app->get('/api/info/getAverageHopsPerRoute', function() {
+  $db = new Database();
+  $results = $db->getAverageHopsPerRoute();
+
+  echo(json_encode($results));
+});
 
 /**
  * Get-request to get all hop times of the current request.

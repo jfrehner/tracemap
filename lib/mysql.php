@@ -136,6 +136,19 @@ class Database {
     return $data;
   }
 
+  public function getAverageHopsPerRoute() {
+    $data = [];
+    $result = $this->db->query("SELECT AVG(hopCount) AS averageHopCount FROM hops h INNER JOIN (
+        SELECT searchID, COUNT(*) AS hopCount FROM `hops` WHERE hostname NOT LIKE '' OR ip NOT LIKE '' GROUP BY searchID
+    ) counts ON counts.searchID = h.searchID
+    WHERE hopNumber = 0
+    GROUP BY hopNumber");
+    while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+      $data[] = $row;
+    }
+    return $data;
+  }
+
   public function getAllHopTimes() {
     $data = [];
     //$result = $this->db->query("SELECT *, COUNT(url) as traceCount FROM search s1 INNER JOIN hops ON s1.id = hops.searchID INNER JOIN ip_locations USING (ip) WHERE hopNumber = (SELECT MAX(hopNumber) FROM search s2 INNER JOIN hops ON s2.id = hops.searchID INNER JOIN ip_locations USING (ip) WHERE s1.id = s2.id GROUP BY searchID) GROUP BY url ORDER BY tracecount DESC LIMIT 10");
@@ -170,6 +183,15 @@ class Database {
   public function getTraceroute($id) {
     $data = [];
     $result = $this->db->query("SELECT * FROM hops LEFT JOIN ip_locations USING (ip) WHERE searchID = " . $id . " ORDER BY hopNumber");
+    while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+      $data[] = $row;
+    }
+    return $data;
+  }
+
+  public function getCountryCount() {
+    $data = [];
+    $result = $this->db->query("SELECT country, countryCode, COUNT(*) as count FROM `ip_locations` WHERE country NOT LIKE '' GROUP BY country");
     while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
       $data[] = $row;
     }
