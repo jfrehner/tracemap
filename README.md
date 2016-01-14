@@ -1,6 +1,6 @@
 # tracemap.me
 
-## Installation
+### Installation
 Prerequisites:
 
 * git
