@@ -18,4 +18,42 @@
     So - don't be sad if you once in a while should not get a request or if the path from start to finish looks a bit funny. Just put in another destination-url, press return and enjoy once more an interesting journey through cables and routers!
     Have fun!
   </p>
+  <h2>How to use the app</h2>
+  <ol class="manual">
+    <li>
+      <div>
+        <span>
+          Go to the <a href="#" class="view-tracemap">main site</a> and enter the destination (this has to be a valid url e.g. www.google.com, otherwise the "Trace it"-Button will be disabled until the url in the input field is valid) for which you want to execute a traceroute. Click the "Trace it"-Button.
+        </span>
+        <img src="./img/tracemap-start.png" alt="tracemap-startpage"/>
+      </div>
+    </li>
+    <li>
+      <div>
+        <span>
+          The "Trace it"-Button will change to "Loading data...". There will now be a table below the google map that displays all the data of the traceroute-request. The table, as well as the google map are live updated. On the table you see the country, the hop is in (if a country could be identified), the hopnumber the ip as well as the hostname.
+          Last but not least the three response time to each of the hops are displayed (or * for the response time if the hop did not respond).
+        </span>
+      </div>
+    </li>
+    <li>
+      <div>
+        <span>
+          Once the request is finished the "Trace it"-Button changes its text to "Trace it"-again (and to a nice blue color) and an additional linegraph about the hoptimes is displayed. On this graph you see one line for each of the three response-times per hop. On the x-axis you see the hopnumber and on the y-axis you see the reponse-time in miliseconds.
+        </span>
+        <img src="./img/tracemap-output.png" alt="tracemap-output"/>
+        <img src="./img/hoptime-graph.png" alt="tracemap-output"/>
+      </div>
+    </li>
+    <li>
+      <div>
+        <span>
+          Enjoy the data!
+        </span>
+      </div>
+    </li>
+  </ol>
+  <p>
+    If you wish, you can go to the <a href="#" class="view-statistics">statistics-page</a> and look at some statistical data we collected. On the google map you see the ten destinations the most traceroutes are executed for (together with a nice line connecting the server location with the destination location). Below the map you can see a table with general statistical data, a graph that displays the relation of the amounts of the top ten traced destinations together with a corresponding table.
+  </p>
 </main>

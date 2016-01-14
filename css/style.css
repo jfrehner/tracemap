@@ -339,3 +339,18 @@ text {
 #view-about h2 {
   margin-top: 40px;
 }
+
+.manual li div {
+  display: inline-block;
+}
+
+.manual li span {
+  float: left;
+  width: 70%;
+}
+
+.manual li img {
+  display: block;
+  float: right;
+  width: 30%;
+}

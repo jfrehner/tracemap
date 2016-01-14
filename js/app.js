@@ -21,50 +21,6 @@ $(document).ready(function() {
 
 
   /**
-   * Click-Event-Listener on the "Tracemap"-Nav-Item.
-   * Redirects the user to the tracemap-page and initializes the rendering
-   * of the page.
-   *
-   * @return {String}   url   The url that the user was redirected to.
-   */
-  $('nav .view-tracemap').on('click', function(e) {
-    e.preventDefault();
-    var url = updateUrl('tracemap');
-    renderPage('tracemap');
-    return url;
-  });
-
-
-  /**
-   * Click-Event-Listener on the "Statistics"-Nav-Item.
-   * Redirects the user to the statistics-page and initializes the rendering
-   * of the page.
-   *
-   * @return {String}   url   The url that the user was redirected to.
-   */
-  $('nav .view-statistics').on('click', function(e) {
-    e.preventDefault();
-    var url = updateUrl('statistics');
-    renderPage('statistics');
-    return url;
-  });
-
-  /**
-   * Click-Event-Listener on the "About"-Nav-Item.
-   * Redirects the user to the about-page and initializes the rendering
-   * the page.
-   *
-   * @return {String}   url   The url that the user was redirected to.
-   */
-  $('nav .view-about').on('click', function(e) {
-    e.preventDefault();
-    var url = updateUrl('about');
-    renderPage('about');
-    return url;
-  });
-
-
-  /**
    * Helper function to transform the first character of the passed String
    * to Uppercase.
    *
@@ -490,6 +446,55 @@ $(document).ready(function() {
    * Applys click-event-handlers to elements.
    */
   function applyListeners() {
+
+
+    /**
+     * Click-Event-Listener on the "Tracemap"-Nav-Item.
+     * Redirects the user to the tracemap-page and initializes the rendering
+     * of the page.
+     *
+     * @return {String}   url   The url that the user was redirected to.
+     */
+    $('.view-tracemap').on('click', function(e) {
+      e.preventDefault();
+      var url = updateUrl('tracemap');
+      renderPage('tracemap');
+      return url;
+    });
+
+
+    /**
+     * Click-Event-Listener on the "Statistics"-Nav-Item.
+     * Redirects the user to the statistics-page and initializes the rendering
+     * of the page.
+     *
+     * @return {String}   url   The url that the user was redirected to.
+     */
+    $('.view-statistics').on('click', function(e) {
+      e.preventDefault();
+      var url = updateUrl('statistics');
+      renderPage('statistics');
+      return url;
+    });
+
+    /**
+     * Click-Event-Listener on the "About"-Nav-Item.
+     * Redirects the user to the about-page and initializes the rendering
+     * the page.
+     *
+     * @return {String}   url   The url that the user was redirected to.
+     */
+    $('.view-about').on('click', function(e) {
+      e.preventDefault();
+      var url = updateUrl('about');
+      renderPage('about');
+      return url;
+    });
+
+    /**
+     * Click-Event-Listener to handle click-events on the trace-it button to
+     * start a traceroute.
+     */
     $('#tm-search button').on('click', function(e) {
       e.preventDefault();
 
