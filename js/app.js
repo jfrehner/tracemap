@@ -291,30 +291,6 @@ $(document).ready(function() {
 
 
   /**
-   * Tests on every key-up-event in the input-field of the "Tracemap"-page
-   * whether the passed URL is a valid one or not, since only valid urls can be
-   * traced.
-   */
-  $('#tm-search').on('keyup', function(e) {
-    if(e.keyCode !== '13') {
-      var url = $('#tm-search input').val();
-      if(!isUrlValid(url)) {
-        $('#submitBtn').css('background-color', '#aaaaaa');
-        $('#submitBtn').html('Invalid URL!');
-        $('#submitBtn').prop('disabled', true);
-      } else {
-        $('#submitBtn').css('background-color', '#3E9FFF');
-        $('#submitBtn').html('Trace it!');
-        $('#submitBtn').prop('disabled', false);
-      }
-    } else {
-      e.preventDefault();
-      $('#tm-search button').click();
-    }
-  });
-
-
-  /**
    * Gets all the hops to a given URL in real-time.
    *
    * The function calls itself recursively after 500ms if the traceroute execution is not yet
@@ -547,6 +523,30 @@ $(document).ready(function() {
         }
       });
     });
+
+
+    /**
+     * Tests on every key-up-event in the input-field of the "Tracemap"-page
+     * whether the passed URL is a valid one or not, since only valid urls can be
+     * traced.
+     */
+    $('#tm-search').on('keyup', function(e) {
+      if(e.keyCode !== '13') {
+        var url = $('#tm-search input').val();
+        if(!isUrlValid(url)) {
+          $('#submitBtn').css('background-color', '#aaaaaa');
+          $('#submitBtn').html('Invalid URL!');
+          $('#submitBtn').prop('disabled', true);
+        } else {
+          $('#submitBtn').css('background-color', '#3E9FFF');
+          $('#submitBtn').html('Trace it!');
+          $('#submitBtn').prop('disabled', false);
+        }
+      } else {
+        e.preventDefault();
+        $('#tm-search button').click();
+      }
+    });
   };
 
 
@@ -680,8 +680,8 @@ $(document).ready(function() {
 
     tr.append('td').html(function(d) {return d.label});
     tr.append('td').html(function(d) {return d.count});
+    return path;
   };
-  return path;
 });
 
 
