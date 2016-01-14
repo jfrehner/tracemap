@@ -61,7 +61,11 @@ $(document).ready(function() {
     $('main').remove();
     $(document).prop('title', fstUp(template));
     $('header h1').empty();
-    $('header h1').append(fstUp(template));
+    var title = template;
+    if (template === 'tracemap') {
+      title = 'tracemap.me';
+    }
+    $('header h1').append(fstUp(title));
     // Load the html-template into the div-Element with the class load-template
     $('div.load-template').load("./templates/" + template + ".html", function() {
       var view = $('main').attr('id');
