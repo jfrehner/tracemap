@@ -247,9 +247,10 @@ $(document).ready(function() {
         strokeOpacity: 1.0,
         strokeWeight: 2
       });
+      console.log(topTenData[i].country);
       newTopTenMarker = {};
       newTopTenMarker = { latitude: points[1].lat, longitude: points[1].lng, title : topTenData[i].url };
-      drawMarker(newTopTenMarker, generateInfoBoxText(topTenData[i].url, topTenData[i].ip), metaData, '', map);
+      drawMarker(newTopTenMarker, generateInfoBoxText(topTenData[i].url, topTenData[i].ip, '', topTenData[i].country, topTenData[i].countryCode.toLowerCase()), metaData, '', map);
       points.pop();
     }
     adjustMapBounds(map, metaData);
@@ -591,9 +592,10 @@ $(document).ready(function() {
    * @return {String} string   A string containing all the necessary html
    *                           to display a nice Infobox for a marker a the google map
    */
-  function generateInfoBoxText(hostname, ip, hopNr) {
+  function generateInfoBoxText(hostname, ip, hopNr, hopCountry, hopCountrycode) {
     var hopStr = '';
     var ipStr = '';
+    var hopCtr = '';
     if(hopNr) {
       hopStr = 'Hop-Nr: ' + hopNr + ' &#64; ';
     }
@@ -602,8 +604,13 @@ $(document).ready(function() {
         '<p>The IP-Address is: '+ ip +'</p>' +
       '</div>';
     }
+    if(hopCountry) {
+      console.log(hopCountry);
+      console.log(hopCountrycode);
+      hopCtr = '<p><img class="flag flag-'  + hopCountrycode + '"></img> ' + hopCountry + '</p>';
+    }
     var string = '<div id="content">'+
-      '<h4 id="firstHeading" class="firstHeading">' + hopStr + hostname + '</h4>' + ipStr +
+      '<h4 id="firstHeading" class="firstHeading">' + hopStr + hostname + '</h4>' + ipStr + hopCtr +
     '</div>';
     return string;
   }
