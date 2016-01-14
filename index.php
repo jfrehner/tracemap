@@ -7,22 +7,7 @@ define( 'TMPL', './templates/');
 
 require 'vendor/autoload.php';
 include 'lib/mysql.php';
-
-/**
- *  Checks if a process with a certain PID is running
- *  This method will be used to determine whether a traceroute
- *  command has finished or not.
- */
-function isRunning($pid){
-  try {
-      $result = shell_exec(sprintf("ps %d", $pid));
-      if( count(preg_split("/\n/", $result)) > 2){
-          return true;
-      }
-  } catch (Exception $e) {}
-
-  return false;
-}
+include_once 'lib/functions.php';
 
 // Initialize Slim
 $app = new \Slim\Slim();

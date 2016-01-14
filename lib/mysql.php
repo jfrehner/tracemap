@@ -1,26 +1,6 @@
 <?php
 
-/**
- *  Tries to get the IP of a user.
- *  Will be stored in the DB but is not used yet.
- */
-function getUserIP()
-{
-    $client  = @$_SERVER['HTTP_CLIENT_IP'];
-    $forward = @$_SERVER['HTTP_X_FORWARDED_FOR'];
-    $remote  = $_SERVER['REMOTE_ADDR'];
-
-    if(filter_var($client, FILTER_VALIDATE_IP)) {
-        $ip = $client;
-    } elseif(filter_var($forward, FILTER_VALIDATE_IP)) {
-        $ip = $forward;
-    } else {
-        $ip = $remote;
-    }
-
-    return $ip;
-}
-
+include_once 'functions';
 
 /**
  * Class to handle all DB-related requests.
@@ -236,7 +216,7 @@ class Database {
    */
   public function getCountryCount() {
     $data = [];
-    $result = $this->db->query("SELECT country, countryCode, COUNT(*) as count FROM `ip_locations` WHERE country NOT LIKE '' GROUP BY country");
+    $result = $this->db->query("SELECT country, countryCode, COUNT(*) as count FROM `ip_locations` WHERE country NOT LIKE '' GROUP BY country ORDER BY count DESC");
     while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
       $data[] = $row;
     }
