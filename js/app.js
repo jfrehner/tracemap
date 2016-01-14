@@ -725,7 +725,7 @@ $(document).ready(function() {
                       .attr('class', 'count-nr')
                       .style('text-anchor', 'middle')
                       .attr('y', '180')
-                      .text(d.data.label + ' was called ' + d.data.count + ' time' + ending);
+                      .text(d.data.label + ' was traced ' + d.data.count + ' time' + ending);
         d3.select('#topTraces tr#n' + i)
                       .attr('class', 'hover');
       })
