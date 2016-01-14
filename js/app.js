@@ -303,6 +303,9 @@ $(document).ready(function() {
           $('#submitBtn').css('background-color', '#3E9FFF');
           $('#submitBtn').html('Trace it!');
           $('#submitBtn').prop('disabled', false);
+          $('#submitBtn').css('margin-left', 'auto');
+          $('#cancelBtn').removeClass('show-button');
+          $('#cancelBtn').addClass('hide-button');
           $('#tm-search input').prop('disabled', false);
           $('#tm-search input').css('color', '#000');
           return data;
@@ -541,6 +544,11 @@ $(document).ready(function() {
       $(this).html('Loading Data…');
       $(this).css('background-color', '#aaaaaa');
       $(this).prop('disabled', true);
+      $('#cancelBtn').removeClass('hide-button');
+      $('#cancelBtn').addClass('show-button');
+
+      $(this).css('margin-left', '0');
+
       $('#tm-search input').prop('disabled', true);
       $('#tm-search input').css('color', '#aaa');
       $('#tm-data ul').html('');
