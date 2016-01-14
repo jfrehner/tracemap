@@ -165,7 +165,7 @@ class Database {
   */
   public function getAverageHopsPerRoute() {
     $data = [];
-    $result = $this->db->query("SELECT AVG(hopCount) AS averageHopCount FROM hops h INNER JOIN (
+    $result = $this->db->query("SELECT ROUND(AVG(hopCount), 1) AS averageHopCount FROM hops h INNER JOIN (
         SELECT searchID, COUNT(*) AS hopCount FROM `hops` WHERE hostname NOT LIKE '' OR ip NOT LIKE '' GROUP BY searchID
     ) counts ON counts.searchID = h.searchID
     WHERE hopNumber = 0
