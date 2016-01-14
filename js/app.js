@@ -247,7 +247,6 @@ $(document).ready(function() {
         strokeOpacity: 1.0,
         strokeWeight: 2
       });
-      console.log(topTenData[i].country);
       newTopTenMarker = {};
       newTopTenMarker = { latitude: points[1].lat, longitude: points[1].lng, title : topTenData[i].url };
       drawMarker(newTopTenMarker, generateInfoBoxText(topTenData[i].url, topTenData[i].ip, '', topTenData[i].country, topTenData[i].countryCode.toLowerCase()), metaData, '', map);
@@ -261,7 +260,7 @@ $(document).ready(function() {
   /**
    * Tests whether the passed URL is a valid one or not.
    *
-   * @param  {String}  url The URL to validate
+   * @param  {String}  url The URL to validate.
    * @return {Boolean}     True, if the URL is valid, false otherwise.
    */
   function isUrlValid(url) {
@@ -271,6 +270,25 @@ $(document).ready(function() {
     var valid = url.indexOf('/') === -1;
     valid &= /^(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i.test(url);
     return valid;
+  }
+
+
+  /**
+   * Resets the submit and cancel button to its initial state.
+   *
+   * First the text of the submit button is checked to see if it needs to be reset.
+   */
+  function resetSubmitAndCancelButton() {
+    if ($('#submitBtn').html() === 'Loading Data…') {
+      $('#submitBtn').css('background-color', '#3E9FFF');
+      $('#submitBtn').html('Trace it!');
+      $('#submitBtn').prop('disabled', false);
+      $('#submitBtn').css('margin-left', 'auto');
+      $('#cancelBtn').removeClass('show-button');
+      $('#cancelBtn').addClass('hide-button');
+      $('#tm-search input').prop('disabled', false);
+      $('#tm-search input').css('color', '#000');
+    }
   }
 
 
@@ -292,23 +310,18 @@ $(document).ready(function() {
       url: "./api/traceroute/" + data.id,
       dataType: "json",
       success: function(data) {
-        if (data.inProgress) {
-          setTimeout(function() {
-            startTraceroute(data, map, metaData);
-          }, 500);
-          processTracerouteData(data, map, metaData);
-        } else {
-          processTracerouteData(data, map, metaData);
-          buildHopTimeGraph(data.data);
-          $('#submitBtn').css('background-color', '#3E9FFF');
-          $('#submitBtn').html('Trace it!');
-          $('#submitBtn').prop('disabled', false);
-          $('#submitBtn').css('margin-left', 'auto');
-          $('#cancelBtn').removeClass('show-button');
-          $('#cancelBtn').addClass('hide-button');
-          $('#tm-search input').prop('disabled', false);
-          $('#tm-search input').css('color', '#000');
-          return data;
+        if ($('#submitBtn').html() === 'Loading Data…') {
+          if (data.inProgress) {
+            setTimeout(function() {
+              startTraceroute(data, map, metaData);
+            }, 500);
+            processTracerouteData(data, map, metaData);
+          } else {
+            processTracerouteData(data, map, metaData);
+            buildHopTimeGraph(data.data);
+            resetSubmitAndCancelButton();
+            return data;
+          }
         }
       }
     });
@@ -456,9 +469,9 @@ $(document).ready(function() {
     else if (hopData.rtt3 === '0') { rtt3 = '' }
     else { rtt3 = hopData.rtt3; };
     if (hopData.hostname === null) { hostname = ''; } else { hostname = hopData.hostname; };
-    //If the table-row already exists and we want to insert it again (since there
-    //is no new row, but possibly a new hoptime-value) we delete the row
-    //with the old data first.
+    // If the table-row already exists and we want to insert it again (since there
+    // is no new row, but possibly a new hoptime-value) we delete the row
+    // with the old data first.
     if ($('#traceroute-table tbody tr.' + hopData.hopNumber)) {
       $('#traceroute-table tbody tr#' + hopData.hopNumber).remove();
     }
@@ -533,19 +546,38 @@ $(document).ready(function() {
 
       var url = $('#tm-search input').val();
 
+      // If a user clicks before the button can be disabled, it might still get
+      // through. This line will catch those invalid urls.
+      if(!isUrlValid(url)) {
+        return;
+      }
+
       url = url.replace('https://', '').replace('http://', '');
 
-      /*
-      As soon as the user clicks on the 'traceroute'-button display a message
-      on the button itself, that we are loading the data. Furthermore, delete
-      hop data from a previous request - if there is any - and print the current
-      url into the header of the tracemap-stats section under the google map.
+      /**
+       * As soon as the user clicks on the 'traceroute'-button display a message
+       * on the button itself, that we are loading the data. Furthermore, delete
+       * hop data from a previous request - if there is any - and print the current
+       * url into the header of the tracemap-stats section under the google map.
        */
       $('#submitBtn').html('Loading Data…');
       $(this).css('background-color', '#aaaaaa');
       $(this).prop('disabled', true);
+
+      /**
+       * Display the cancel button
+       */
       $('#cancelBtn').removeClass('hide-button');
       $('#cancelBtn').addClass('show-button');
+
+      /**
+       * Click-Event-Listener on the cancel button.
+       * Resets the submit button to its initial state and hides the cancel button
+       */
+      $('#cancelBtn').on('click', function(e) {
+        e.preventDefault();
+        resetSubmitAndCancelButton();
+      });
 
       $(this).css('margin-left', '0');
 
@@ -613,8 +645,6 @@ $(document).ready(function() {
       '</div>';
     }
     if(hopCountry) {
-      console.log(hopCountry);
-      console.log(hopCountrycode);
       hopCtr = '<p><img class="flag flag-'  + hopCountrycode + '"></img> ' + hopCountry + '</p>';
     }
     var string = '<div id="content">'+
