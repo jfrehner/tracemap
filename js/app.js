@@ -112,6 +112,7 @@ $(document).ready(function() {
       if(view == 'view-tracemap') {
         $('header h2').css('display', 'visible');
         drawMap(true);
+        getInfo();
       } else if(view == 'view-statistics') {
         $('header h2').css('visibility', 'visible');
         drawMap(true, [], getTopTraces);
