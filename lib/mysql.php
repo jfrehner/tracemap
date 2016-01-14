@@ -1,6 +1,6 @@
 <?php
 
-include_once 'functions';
+include_once 'functions.php';
 
 /**
  * Class to handle all DB-related requests.
