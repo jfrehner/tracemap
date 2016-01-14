@@ -792,7 +792,7 @@ $(document).ready(function() {
                                     .attr('d', arc);
                 });
 
-    tr.append('td').html(function(d) {return '<img src="./css/blank.gif" class="flag flag-'  + d.countryCode.toLowerCase() + '"></img>'});
+    tr.append('td').html(function(d) {return '<img class="flag flag-'  + d.countryCode.toLowerCase() + '"></img>'});
     tr.append('td').html(function(d) {return d.country});
     tr.append('td').html(function(d) {return d.count});
     return path;
