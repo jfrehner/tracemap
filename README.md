@@ -1,5 +1,7 @@
 # tracemap.me
 
+[Visit tracemap.me](http://tracemap.me/)
+
 ### Installation
 Prerequisites:
 
