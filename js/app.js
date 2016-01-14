@@ -72,6 +72,7 @@ $(document).ready(function() {
       } else if(view == 'view-statistics') {
         $('header h2').css('visibility', 'visible');
         drawMap(true, [], getTopTraces);
+        getCountrycount();
         getInfo();
       } else if(view == 'view-about') {
         $('header h2').css('visibility', 'hidden');
@@ -187,6 +188,27 @@ $(document).ready(function() {
         }
         drawTopTens(metaData, response, map);
         constructPieChartWTable(dataSet);
+        return response;
+      }
+    });
+  }
+
+
+  /**
+   * Gets the countrycount via a GET-Request to the REST-Api of the app.
+   *
+   * Once it has the data it calls a function to construct a pie chart with a
+   * table displaying the data.
+   *
+   * @return  {Object}  response  The topTen Traces as an Object.
+   */
+  function getCountrycount() {
+    $.ajax({
+      method: "GET",
+      url: "./api/info/countryCount",
+      dataType: "json",
+      success: function(response) {
+        constructPieChartWTableCountries(response);
         return response;
       }
     });
@@ -688,6 +710,94 @@ $(document).ready(function() {
     tr.append('td').html(function(d) {return d.count});
     return path;
   };
+
+
+  /**
+   * Constructs a pie chart with a corresponding table displaying a name - value
+   * pair.
+   *
+   * @param  {Object}  data  Object containing the data that should be displayed.
+   * @return {Object}  path  The created pie chart.
+   */
+  function constructPieChartWTableCountries(data) {
+    var width = 450;
+    var height = 400;
+    var radius = 130;
+    var color = d3.scale.category20c();
+    var svg = d3.select('#topCountries')
+      .append('svg')
+      .attr('width', width)
+      .attr('height', height)
+      .append('g')
+      .attr('transform', 'translate(' + (width / 2) +  ',' + (height / 2) + ')');
+    var arc = d3.svg.arc()
+      .outerRadius(radius);
+    var arcOver = d3.svg.arc()
+      .outerRadius(radius + 10);
+    var pie = d3.layout.pie()
+      .value(function(d) { return d.count; })
+      .sort(null);
+    var path = svg.selectAll('path')
+      .data(pie(data))
+      .enter()
+      .append('path')
+      .attr('d', arc)
+      .attr('fill', function(d, i) {
+        return color(d.data.countryCode);
+      })
+      .on('mouseover', function(d, i) {
+        d3.select(this).transition()
+                       .duration(200)
+                       .attr('d', arcOver);
+        var ending = 's';
+        if(d.data.count == 1) {
+          ending = '';
+        }
+        svg.append('text')
+                      .attr('id', i)
+                      .attr('class', 'countrycode')
+                      .style('text-anchor', 'middle')
+                      .attr('y', '180')
+                      .text(d.data.country + ' was reached ' + d.data.count + ' time' + ending);
+        d3.select('#topCountriesTable tr#n' + i)
+                      .attr('class', 'hover');
+      })
+      .on('mouseout', function(d) {
+        d3.select(this).transition()
+                       .duration(200)
+                       .attr('d', arc);
+        var id = d3.select('text').attr('id');
+        svg.select('text.countrycode').remove();
+        d3.select('#topCountriesTable tr#n' + id)
+                      .classed('hover', false);
+      });
+    var tr = d3.select('#topCountriesTable')
+                .selectAll('tr')
+                .data(data)
+                .enter()
+                .append('tr')
+                .attr('id', function(d, i) {
+                  return 'n' + i;
+                })
+                .on('mouseover', function(d, i) {
+                  var onePath = path[0][i];
+                  d3.select(onePath).transition()
+                                    .duration(200)
+                                    .attr('d', arcOver);
+                })
+                .on('mouseout', function(d, i) {
+                  var onePath = path[0][i];
+                  d3.select(onePath).transition()
+                                    .duration(200)
+                                    .attr('d', arc);
+                });
+
+    tr.append('td').html(function(d) {return '<img src="./css/blank.gif" class="flag flag-'  + d.countryCode.toLowerCase() + '"></img>'});
+    tr.append('td').html(function(d) {return d.country});
+    tr.append('td').html(function(d) {return d.count});
+    return path;
+  };
+
 
   /**
    * Builds a hop-response-time-line-graph out of the passed data.

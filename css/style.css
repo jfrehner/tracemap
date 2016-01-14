@@ -309,7 +309,8 @@ text {
   font-weight: light;
 }
 
-#topTenChart svg {
+#topTenChart svg,
+#topCountries svg {
   display: block;
   margin: -70px auto 0;
 }
