@@ -1,5 +1,4 @@
 # tracemap.me
-=======
 
 ## Installation
 Prerequisites:
