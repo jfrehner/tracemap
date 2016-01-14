@@ -525,7 +525,7 @@ $(document).ready(function() {
      * Click-Event-Listener to handle click-events on the trace-it button to
      * start a traceroute.
      */
-    $('#tm-search button').on('click', function(e) {
+    $('#tm-search #submitBtn').on('click', function(e) {
       e.preventDefault();
 
       $('#tm-data-raw ul').html('');
@@ -541,7 +541,7 @@ $(document).ready(function() {
       hop data from a previous request - if there is any - and print the current
       url into the header of the tracemap-stats section under the google map.
        */
-      $(this).html('Loading Data…');
+      $('#submitBtn').html('Loading Data…');
       $(this).css('background-color', '#aaaaaa');
       $(this).prop('disabled', true);
       $('#cancelBtn').removeClass('hide-button');
