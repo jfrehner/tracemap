@@ -126,9 +126,9 @@ $(document).ready(function() {
       $('#tm-map-initial').css('background-image', 'none');
       if(drawStartMarker) {
         //Add the start marker to the google-map if wished
-        startMarker = { latitude: 43.4106, longitude: -80.5011, title : 'Start' };
+        // startMarker = { latitude: 43.4106, longitude: -80.5011, title : 'Start' };
 
-        //startMarker = { latitude: start.coords.latitude, longitude: start.coords.longitude, title : 'Start' };
+        startMarker = { latitude: start.coords.latitude, longitude: start.coords.longitude, title : 'Start' };
         drawMarker(startMarker, generateInfoBoxText('Your current location', ''), metaData, adjustMapBounds, map);
         metaData.start = startMarker;
       }
@@ -638,6 +638,8 @@ $(document).ready(function() {
    * @return {Object}  path  The created pie chart.
    */
   function constructPieChartWTable(data) {
+    //remove old charts
+    $('#topTenChart').empty();
     var width = 450;
     var height = 400;
     var radius = 130;
@@ -724,6 +726,7 @@ $(document).ready(function() {
    * @return {Object}  path  The created pie chart.
    */
   function constructPieChartWTableCountries(data) {
+    $('#topCountries').empty();
     var width = 450;
     var height = 400;
     var radius = 130;
