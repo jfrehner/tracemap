@@ -32,9 +32,7 @@ $app = new \Slim\Slim();
  * Get-request to the root of our app renders the template for the index-page.
  */
 $app->get('/(:site)', function () use ($app) {
-  $app->render('index.php', array(
-		'page_title' => "Tracemap"
-  ));
+  $app->render('index.html');
 });
 
 
@@ -462,7 +460,7 @@ The following code should give correct results for this traceroute
 $app->get('/api/info/basic', function () {
     $db = new Database();
     $timesResults = $db->getAverageHopTime();
-    $time = ($timesResults[0]['AVG1'] + $timesResults[0]['AVG2'] + $timesResults[0]['AVG3']) / 3;
+    $time = round(($timesResults[0]['AVG1'] + $timesResults[0]['AVG2'] + $timesResults[0]['AVG3']) / 3, 3);
 
     $out = array();
     $out['numTraces'] = $db->getNumberOfTraces()[0]['COUNT(*)'];

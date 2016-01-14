@@ -192,8 +192,8 @@ $(document).ready(function() {
     $.ajax({
       method: "GET",
       url: "./api/info/basic",
+      dataType: "json",
       success: function(data) {
-        data = $.parseJSON(data);
         $('.numberOfTraces').html(data.numTraces);
         $('.numberOfHops').html(data.numHops);
         $('.averageHopTime').html(data.hopTime);
@@ -221,8 +221,8 @@ $(document).ready(function() {
     $.ajax({
       method: "GET",
       url: "./api/info/topTraces",
+      dataType: "json",
       success: function(response) {
-        response = $.parseJSON(response);
         var dataSet  = new Array();
         //Reorder the received data a bit
         for(var i = 0; i < response.length; i++) {
