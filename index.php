@@ -473,6 +473,7 @@ $app->get('/api/info/basic', function () {
     $out['numTraces'] = $db->getNumberOfTraces()[0]['COUNT(*)'];
     $out['numHops'] = $db->getNumberOfHops()[0]['COUNT(*)'];
     $out['hopTime'] = $time;
+    $out['averageHopsPerRoute'] = $db->getAverageHopsPerRoute()[0]['averageHopCount'];
 
     echo(json_encode($out));
 });
@@ -508,16 +509,6 @@ $app->get('/api/info/hoptimes', function() {
 $app->get('/api/info/countryCount', function() {
   $db = new Database();
   $results = $db->getCountryCount();
-
-  echo(json_encode($results));
-});
-
-/**
- * Get-request to get a the average count of hops per route.
- */
-$app->get('/api/info/getAverageHopsPerRoute', function() {
-  $db = new Database();
-  $results = $db->getAverageHopsPerRoute();
 
   echo(json_encode($results));
 });

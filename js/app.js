@@ -197,6 +197,7 @@ $(document).ready(function() {
         $('.numberOfTraces').html(data.numTraces);
         $('.numberOfHops').html(data.numHops);
         $('.averageHopTime').html(data.hopTime);
+        $('.averageHopCount').html(data.averageHopsPerRoute);
         return data;
       }
     });
