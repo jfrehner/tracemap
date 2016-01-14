@@ -633,7 +633,9 @@ $(document).ready(function() {
     for(i = 0; i < metaData.markers.length; i++) {
       metaData.bounds.extend(metaData.markers[i].getPosition());
     }
-    map.fitBounds(metaData.bounds);
+    if(metaData.markers.length > 1) {
+      map.fitBounds(metaData.bounds);
+    }
   }
 
 
