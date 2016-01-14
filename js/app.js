@@ -413,7 +413,7 @@ $(document).ready(function() {
     var countryFlag = '';
 
     if(hopData.countryCode) {
-      var countryFlag = '<img src="./css/blank.gif" class="flag flag-'  + hopData.countryCode.toLowerCase() + '"></img>';
+      var countryFlag = '<img src="./img/blank.gif" class="flag flag-'  + hopData.countryCode.toLowerCase() + '"></img>';
     }
     var rtt1, rtt2, rtt3, hostname;
     if (hopData.rtt1 === '-1') { rtt1 = '*'; }

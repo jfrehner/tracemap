@@ -203,7 +203,7 @@ input:hover {
     height: 500px;
     background-color: #ccc;
     border: 1px solid black;
-    background-image: url("loader.gif");
+    background-image: url("../img/loader.gif");
     background-repeat: no-repeat;
     background-position: center center;
 }
