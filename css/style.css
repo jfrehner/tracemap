@@ -230,7 +230,7 @@ input:hover {
 }
 
 #cancelBtn:hover {
-  background-color: #007BFB;
+  background-color: #C20000;
   -webkit-transition: background-color 300ms linear;
   -moz-transition: background-color 300ms linear;
   -o-transition: background-color 300ms linear;
