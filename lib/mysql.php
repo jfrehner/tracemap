@@ -1,6 +1,9 @@
 <?php
 
-// TODO: Move to a better location
+/**
+ *  Tries to get the IP of a user.
+ *  Will be stored in the DB but is not used yet.
+ */
 function getUserIP()
 {
     $client  = @$_SERVER['HTTP_CLIENT_IP'];
@@ -83,6 +86,13 @@ class Database {
     }
   }
 
+  /**
+   * Inserts the response of the ip-api.com API into the DB for faster access.
+   *
+   * @param  String   $hostname The hostname of the hop.
+   * @param  String   $ip       The ip address of the hop.
+   * @param  Object   $out      The JSON-object of the API response.
+   */
   public function insertIPLocation($hostname, $ip, $out) {
     $result = json_decode($out, true);
 
@@ -96,6 +106,11 @@ class Database {
     }
   }
 
+  /**
+   * Checks if a given hostname is already in our location table.
+   *
+   * @param  String   $url  The hostname to check if already in the DB.
+   */
   public function getCachedURL($url) {
     $data = [];
     $result = $this->db->query("SELECT * FROM ip_locations WHERE hostname LIKE '".$url."'");
@@ -109,6 +124,9 @@ class Database {
     }
   }
 
+  /**
+  *   Get the number of traceroutes we executed so far.
+  */
   public function getNumberOfTraces() {
     $data = [];
     $result = $this->db->query("SELECT COUNT(*) FROM search");
@@ -118,6 +136,9 @@ class Database {
     return $data;
   }
 
+  /**
+  *   Get the number of hops we visited so far.
+  */
   public function getNumberOfHops() {
     $data = [];
     $result = $this->db->query("SELECT COUNT(*) FROM hops");
@@ -127,6 +148,9 @@ class Database {
     return $data;
   }
 
+  /**
+  *   Get the average time to reach hops.
+  */
   public function getAverageHopTime() {
     $data = [];
     $result = $this->db->query("SELECT AVG(rtt1) as AVG1, AVG(rtt2) as AVG2, AVG(rtt3) as AVG3 FROM `hops` WHERE hopNumber > 0");
@@ -136,6 +160,9 @@ class Database {
     return $data;
   }
 
+  /**
+  *   Get the average number of hops per route.
+  */
   public function getAverageHopsPerRoute() {
     $data = [];
     $result = $this->db->query("SELECT AVG(hopCount) AS averageHopCount FROM hops h INNER JOIN (
@@ -149,6 +176,9 @@ class Database {
     return $data;
   }
 
+  /**
+  *   Get an array of all hop times.
+  */
   public function getAllHopTimes() {
     $data = [];
     //$result = $this->db->query("SELECT *, COUNT(url) as traceCount FROM search s1 INNER JOIN hops ON s1.id = hops.searchID INNER JOIN ip_locations USING (ip) WHERE hopNumber = (SELECT MAX(hopNumber) FROM search s2 INNER JOIN hops ON s2.id = hops.searchID INNER JOIN ip_locations USING (ip) WHERE s1.id = s2.id GROUP BY searchID) GROUP BY url ORDER BY tracecount DESC LIMIT 10");
@@ -161,6 +191,11 @@ class Database {
     return $data;
   }
 
+  /**
+   * Get Hop times of a certain traceroute by ID.
+   *
+   * @param  Int   $id The ID of the search.
+   */
   public function getHopTimesOfID($id) {
     $data = [];
     $result = $this->db->query("SELECT rtt1, rtt2, rtt3, hostname FROM hops WHERE searchID = " . $id . " AND rtt1 IS NOT NULL AND rtt1 > 0 AND rtt2 IS NOT NULL AND rtt2 > 0 AND rtt3 IS NOT NULL AND rtt3 > 0");
@@ -170,6 +205,9 @@ class Database {
     return $data;
   }
 
+  /**
+   * Get the most traced URLs
+   */
   public function getTopTraces() {
     $data = [];
     $result = $this->db->query("SELECT *, COUNT(url) as traceCount FROM search s1 INNER JOIN hops ON s1.id = hops.searchID INNER JOIN ip_locations USING (ip) WHERE hopNumber = (SELECT MAX(hopNumber) FROM search s2 INNER JOIN hops ON s2.id = hops.searchID INNER JOIN ip_locations USING (ip) WHERE s1.id = s2.id GROUP BY searchID) GROUP BY url ORDER BY tracecount DESC LIMIT 10");
@@ -180,6 +218,11 @@ class Database {
     return $data;
   }
 
+  /**
+   * Get all hops of a traceroute by ID.
+   *
+   * @param  Int   $id The ID of the search.
+   */
   public function getTraceroute($id) {
     $data = [];
     $result = $this->db->query("SELECT * FROM hops LEFT JOIN ip_locations USING (ip) WHERE searchID = " . $id . " ORDER BY hopNumber");
@@ -189,6 +232,9 @@ class Database {
     return $data;
   }
 
+  /**
+   * Get a list of all countries and a count of how many hops they have.
+   */
   public function getCountryCount() {
     $data = [];
     $result = $this->db->query("SELECT country, countryCode, COUNT(*) as count FROM `ip_locations` WHERE country NOT LIKE '' GROUP BY country");
@@ -198,6 +244,11 @@ class Database {
     return $data;
   }
 
+  /**
+   * Check the status of a certain traceroute.
+   *
+   * @param  Int   $id The ID of the search.
+   */
   public function tracerouteFinished($id) {
     $data = [];
     $result = $this->db->query("SELECT * FROM search WHERE id = " . $id);
@@ -207,12 +258,22 @@ class Database {
     return (count($data) > 0) ? $data[0]['finished'] : true;
   }
 
+  /**
+   * Updates the status of a traceroute to finished.
+   *
+   * @param  Int   $id The ID of the search.
+   */
   public function updateTracerouteFinished($id) {
     $result = $this->db->query("UPDATE search SET finished = 1 WHERE id = " . $id);
     return $result;
   }
 
-
+  /**
+   * Get the location of a hop by URL or IP.
+   *
+   * @param  String   $url  The URL of the hop.
+   * @param  String   $ip   The IP of the hop.
+   */
   public function requestIPLocation($url, $ip) {
     $result = $this->getCachedURL($url);
 

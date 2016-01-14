@@ -8,6 +8,11 @@ define( 'TMPL', './templates/');
 require 'vendor/autoload.php';
 include 'lib/mysql.php';
 
+/**
+ *  Checks if a process with a certain PID is running
+ *  This method will be used to determine whether a traceroute
+ *  command has finished or not.
+ */
 function isRunning($pid){
   try {
       $result = shell_exec(sprintf("ps %d", $pid));
@@ -19,6 +24,7 @@ function isRunning($pid){
   return false;
 }
 
+// Initialize Slim
 $app = new \Slim\Slim();
 
 
@@ -55,6 +61,7 @@ $app->get('/(:site)', function () use ($app) {
 /**
  * API CODE
  */
+
 /**
  * Get-request to /api/ping/:url gets the location for a given url.
  *
@@ -65,10 +72,10 @@ $app->get('/api/ping/:url', function ($url) {
 
     $db = new Database();
 
-    $result = $db->getCachedURL($url); //TODO: Hostname can have multiple ips
+    $result = $db->getCachedURL($url);
 
     if (count($result) === 0) {
-      //$out = file_get_contents('http://www.freegeoip.net/json/' . $url);
+      // $out = file_get_contents('http://www.freegeoip.net/json/' . $url);
       $out = file_get_contents('http://ip-api.com/json/' . $url);
 
       $db->insertIPLocation($url, $out);
@@ -90,23 +97,11 @@ $app->get('/api/:url', function ($url) {
     $db = new Database();
     $insertID = $db->insertURL($url);
 
+    // Define parameters and execute traceroute command
     $cmd = 'traceroute -I '.$url;
     $outputfile = 'traceroutes/'.$insertID.'.txt';
     $pidfile = 'traceroutes/'.$insertID.'.pid';
     exec(sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, $outputfile, $pidfile));
-/*
-    // The following code will be obsolete once we read the realtime data from the file
-    exec('traceroute -I '.$url.' 2>&1', $out, $code);
-    if ($code) {
-        die("An error occurred while trying to traceroute: " . join("\n", $out));
-    }
-
-    $db->insertTraceroute($insertID, $out);
-*/
-/*
-    $out = array();
-    $out['id'] = $insertID;
-*/
 
     $out = array();
     $out['id'] = $insertID;
@@ -117,7 +112,7 @@ $app->get('/api/:url', function ($url) {
 
 /**
  * Get-request to /api/traceroute/:id gets the traceroute-data for a given id
- * from the DB.
+ * from the file or DB.
  *
  * @param  {int}  $id   The id to get the location for.
  * @return {json}       Returns the traceroute-data in a json-object.
@@ -522,8 +517,6 @@ $app->get('/api/info/hoptime/:id', function($id) {
 
   echo(json_encode($results));
 });
-
-
 
 $app->run();
 ?>
