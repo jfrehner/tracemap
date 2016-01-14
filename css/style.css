@@ -340,13 +340,21 @@ text {
   margin-top: 40px;
 }
 
+.manual li {
+  margin-bottom: 10px;
+}
+
 .manual li div {
   display: inline-block;
+  vertical-align: top;
+  width: 100%;
 }
 
 .manual li span {
+  display: inline-block;
   float: left;
-  width: 70%;
+  width: 65%;
+  margin-right: 10px;
 }
 
 .manual li img {
