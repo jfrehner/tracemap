@@ -587,8 +587,9 @@ $(document).ready(function() {
       $('#tm-data h2').html('Tracemap-Stats for Destination ' + url);
 
       $.ajax({
-        method: "GET",
-        url: "./api/" + url,
+        method: "POST",
+        url: "./api/traceroute/",
+        data: {url: url},
         dataType: "json",
         success: function(data) {
           drawMap(true, data, startTraceroute);

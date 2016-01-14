@@ -51,13 +51,15 @@ $app->get('/api/ping/:url', function ($url) {
 
 
 /**
- * Get-request to /api/:url performs a traceroute-command to the given url, saves
- * the whole output into a file and the DB and returns it as a json-object.
+ * Post-request to /api/traceroute/ performs a traceroute-command to the given url.
  *
- * @param {string} $url The url to get the traceroute to.
- * @return {json}       Returns id of the traceroute-result.
+ * The traceroute command output will be saved to a file.
+ *
+ * @return {int}  Returns id of the traceroute request.
  */
-$app->get('/api/:url', function ($url) {
+$app->post('/api/traceroute/', function () use ($app) {
+    $url = $app->request->post('url');
+
     $db = new Database();
     $insertID = $db->insertURL($url);
 
