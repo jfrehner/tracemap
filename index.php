@@ -35,27 +35,6 @@ $app->get('/(:site)', function () use ($app) {
   $app->render('index.html');
 });
 
-
-/**
- * Get-request to /stats renders the template for the stats-page.
- */
-// $app->get('/statistics/', function () use ($app) {
-//     $app->render('index.php', array(
-//         'page_title' => 'Statistics'
-//     ));
-// });
-
-
-/**
- * Get-request to /about renders the template for the about-page.
- */
-// $app->get('/about/', function () use ($app) {
-//     $app->render('index.php', array(
-//         'page_title' => 'About'
-//     ));
-// });
-
-
 /**
  * API CODE
  */
@@ -435,9 +414,9 @@ The following code should give correct results for this traceroute
     fclose($traceFileHandle);
 
     if (!$out['inProgress']) {
-      //unlink('traceroutes/'.$id.'.pid');
-      //unlink('traceroutes/'.$id.'.txt');
       $db->updateTracerouteFinished($id);
+      unlink('traceroutes/'.$id.'.pid');
+      unlink('traceroutes/'.$id.'.txt');
     }
 
     foreach ($out['data'] as $key => $value) {
