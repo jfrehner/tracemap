@@ -18,11 +18,11 @@
                 1. GENERAL STYLES
  **********************************************/
 * {
-    font-family: 'Fira Sans', sans-serif;
+  font-family: 'Fira Sans', sans-serif;
 }
 
 body {
-    background-color: #eee;
+  background-color: #eee;
 }
 
 
@@ -30,19 +30,19 @@ body {
                  2. FONT STYLES
  **********************************************/
 h1 {
-    font-family: 'Lobster', 'Fira Sans', sans-serif;
-    font-size: 5em;
-    text-align: center;
-    margin: 20px 0 -20px 0;
+  font-family: 'Lobster', 'Fira Sans', sans-serif;
+  font-size: 5em;
+  text-align: center;
+  margin: 20px 0 -20px 0;
 }
 
 h2 {
-    text-align: center;
-    margin-top: 30px;
+  text-align: center;
+  margin-top: 30px;
 }
 
 h3 {
-    text-align: center;
+  text-align: center;
 }
 
 p {
@@ -50,7 +50,7 @@ p {
 }
 
 i.fa {
-    padding-right: 10px;
+  padding-right: 10px;
 }
 
 
@@ -58,59 +58,59 @@ i.fa {
                 3. NAV STYLES
  **********************************************/
 nav {
-    display: block;
-    width: 100%;
-    height: 60px;
-    line-height: 40px;
-    background-color: #3E9FFF;
-    font-weight: bold;
-    letter-spacing: 0.8px;
+  display: block;
+  width: 100%;
+  height: 60px;
+  line-height: 40px;
+  background-color: #3E9FFF;
+  font-weight: bold;
+  letter-spacing: 0.8px;
 }
 
 nav ul {
-    margin: 10px 10px 0 0;
-    float: right;
+  margin: 10px 10px 0 0;
+  float: right;
 }
 
 nav li {
-    display: inline-block;
-    width: 140px;
-    margin: 0 5px;
-    text-align: center;
-    -webkit-transition: all 300ms linear;
-    -moz-transition: all 300ms linear;
-    -o-transition: all 300ms linear;
-    -ms-transition: all 300ms linear;
-    transition: all 300ms linear;
+  display: inline-block;
+  width: 140px;
+  margin: 0 5px;
+  text-align: center;
+  -webkit-transition: all 300ms linear;
+  -moz-transition: all 300ms linear;
+  -o-transition: all 300ms linear;
+  -ms-transition: all 300ms linear;
+  transition: all 300ms linear;
 }
 
 nav li:last-child {
-    margin: 0;
+  margin: 0;
 }
 
 nav li:hover,
 nav li.selected {
-    background-color: #007BFB;
-    border-radius: 4px;
-    color: #fff;
-    -webkit-transition: all 300ms linear;
-    -moz-transition: all 300ms linear;
-    -o-transition: all 300ms linear;
-    -ms-transition: all 300ms linear;
-    transition: all 300ms linear;
+  background-color: #007BFB;
+  border-radius: 4px;
+  color: #fff;
+  -webkit-transition: all 300ms linear;
+  -moz-transition: all 300ms linear;
+  -o-transition: all 300ms linear;
+  -ms-transition: all 300ms linear;
+  transition: all 300ms linear;
 }
 
 nav a {
-    color: #000;
-    text-decoration: none;
-    display: block;
-    width: 100%;
-    height: 100%;
+  color: #000;
+  text-decoration: none;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 nav a:hover,
 nav .selected a {
-    color: #fff;
+  color: #fff;
 }
 
 
@@ -118,10 +118,10 @@ nav .selected a {
                 4. FOOTER STYLES
  **********************************************/
 footer {
-    margin: 50px 20px;
-    font-size: 12px;
-    font-style: italic;
-    float: right;
+  margin: 50px 20px;
+  font-size: 12px;
+  font-style: italic;
+  float: right;
 }
 
 
@@ -130,82 +130,82 @@ footer {
  **********************************************/
 #tm-search input,
 #tm-search button {
-    display: block;
-    margin: 20px auto;
+  display: block;
+  margin: 20px auto;
 }
 
 #tm-search form {
-    margin: 50px 0 50px 0;
+  margin: 50px 0 50px 0;
 }
 
 input {
-    width: 500px;
-    height: 30px;
-    padding: 3px 6px;
-    border: none;
-    box-shadow: 0 0 2px 0px #bbb;
-    -webkit-transition: all 300ms linear;
-    -moz-transition: all 300ms linear;
-    -o-transition: all 300ms linear;
-    -ms-transition: all 300ms linear;
-    transition: all 300ms linear;
+  width: 500px;
+  height: 30px;
+  padding: 3px 6px;
+  border: none;
+  box-shadow: 0 0 2px 0px #bbb;
+  -webkit-transition: all 300ms linear;
+  -moz-transition: all 300ms linear;
+  -o-transition: all 300ms linear;
+  -ms-transition: all 300ms linear;
+  transition: all 300ms linear;
 }
 
 input:focus,
 input:hover {
-    box-shadow: 0 0 8px 4px #bbb;
-    -webkit-transition: all 300ms linear;
-    -moz-transition: all 300ms linear;
-    -o-transition: all 300ms linear;
-    -ms-transition: all 300ms linear;
-    transition: all 300ms linear;
+  box-shadow: 0 0 8px 4px #bbb;
+  -webkit-transition: all 300ms linear;
+  -moz-transition: all 300ms linear;
+  -o-transition: all 300ms linear;
+  -ms-transition: all 300ms linear;
+  transition: all 300ms linear;
 }
 
 #tm-search button {
-    background: #3E9FFF;
-    border: none;
-    width: 200px;
-    height: 40px;
-    line-height: 40px;
-    color: #fff;
-    font-size: 24px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border-radius: 4px;
-    border-bottom: 3px solid rgba(0, 0, 0, 0.2);
-    padding: 0;
-    -webkit-transition: background-color 300ms linear;
-    -moz-transition: background-color 300ms linear;
-    -o-transition: background-color 300ms linear;
-    -ms-transition: background-color 300ms linear;
-    transition: background-color 300ms linear;
+  background: #3E9FFF;
+  border: none;
+  width: 200px;
+  height: 40px;
+  line-height: 40px;
+  color: #fff;
+  font-size: 24px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 4px;
+  border-bottom: 3px solid rgba(0, 0, 0, 0.2);
+  padding: 0;
+  -webkit-transition: background-color 300ms linear;
+  -moz-transition: background-color 300ms linear;
+  -o-transition: background-color 300ms linear;
+  -ms-transition: background-color 300ms linear;
+  transition: background-color 300ms linear;
 }
 
 #tm-search button:hover {
-    background-color: #007BFB;
-    -webkit-transition: background-color 300ms linear;
-    -moz-transition: background-color 300ms linear;
-    -o-transition: background-color 300ms linear;
-    -ms-transition: background-color 300ms linear;
-    transition: background-color 300ms linear;
+  background-color: #007BFB;
+  -webkit-transition: background-color 300ms linear;
+  -moz-transition: background-color 300ms linear;
+  -o-transition: background-color 300ms linear;
+  -ms-transition: background-color 300ms linear;
+  transition: background-color 300ms linear;
 }
 
 #tm-search button:active {
-    background-color: #007BFB;
-    border-top: 3px solid rgba(0, 0, 0, 0.2);
-    border-left: 3px solid rgba(0, 0, 0, 0.2);
-    border-bottom: none;
+  background-color: #007BFB;
+  border-top: 3px solid rgba(0, 0, 0, 0.2);
+  border-left: 3px solid rgba(0, 0, 0, 0.2);
+  border-bottom: none;
 }
 
 #tm-map-initial {
-    margin: 0 auto;
-    width: 80%;
-    height: 500px;
-    background-color: #ccc;
-    border: 1px solid black;
-    background-image: url("../img/loader.gif");
-    background-repeat: no-repeat;
-    background-position: center center;
+  margin: 0 auto;
+  width: 80%;
+  height: 500px;
+  background-color: #ccc;
+  border: 1px solid black;
+  background-image: url("../img/loader.gif");
+  background-repeat: no-repeat;
+  background-position: center center;
 }
 
 
@@ -264,39 +264,51 @@ input:hover {
                6. STATS STYLES
  **********************************************/
 #tm-google-map-statistics figure {
-    margin: 0 auto;
-    width: 80%;
-    height: 500px;
-    background-color: #ccc;
+  margin: 0 auto;
+  width: 80%;
+  height: 500px;
+  background-color: #ccc;
 }
 
 #view-statistics table {
-    display: table;
-    width: 50%;
-    margin: 0 auto 80px;
-    border-top: 3px solid black;
-    border-bottom: 3px solid black;
+  display: table;
+  width: 50%;
+  margin: 0 auto 80px;
+  border-top: 3px solid black;
+  border-bottom: 3px solid black;
 }
 
 #view-statistics thead {
-    font-weight: bold;
-    font-style: italic;
-    border-bottom: 2px solid black;
+  font-weight: bold;
+  font-style: italic;
+  border-bottom: 2px solid black;
 }
 
 #view-statistics table tr {
-    border-top: 1px solid #ccc;
+  border-top: 1px solid #ccc;
 }
 
 #view-statistics tr.hover,
 #view-statistics tr:hover {
-    background-color: #3E9FFF;
-    color: #fff;
+  background-color: #3E9FFF;
+  color: #fff;
 }
 
 #view-statistics table td {
-    width: 75%;
-    padding: 8px;
+  width: 75%;
+  padding: 8px;
+}
+
+#view-statistics table.three-rows td:first-child {
+  width: 10%;
+}
+
+#view-statistics table.three-rows td {
+  width: 65%;
+}
+
+#view-statistics table.three-rows td:last-child {
+  width: 25%;
 }
 
 #view-statistics table td:last-child {
@@ -318,7 +330,7 @@ text {
 
 
 /**********************************************
-               6. ABOUT STYLES
+               7. ABOUT STYLES
  **********************************************/
 #view-about {
   display: block;
