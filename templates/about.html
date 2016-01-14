@@ -11,6 +11,10 @@
     on our server (who stands somewhere in great, big Canada) and sending all the received 'hops' (aka IP-addresses) to a geolocater API (a shoutout to the folks at <a href="http://www.ip-api.com">ip-api.com</a> who provide their service for free!). The received
     geolocation-info is then put into a google-map and the different hops are linked with a beautiful line, so one can follow a request from start to finish (hopefully).
   </p>
+  <h2>Why does my traceroute always start in Canada?</h2>
+  <p>
+    Our server is located in Canada and the traceroute command is executed on the server. Unfortunately, it is not possible to start a traceroute command on your computer through the browser.
+  </p>
   <h2>Some considerations</h2>
   <p>
     It would not be a real-world web-app if there would be completely no problems... (sadly). It can be that the app prints out rather intertwined paths the request takes. Unfortunately, geolocation of an ip-address is not that easy, and the free database we're using
