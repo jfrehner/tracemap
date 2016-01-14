@@ -63,7 +63,7 @@ class Database {
    * @return Int              The insert_id returned by the DB after an Insert.
    */
   public function insertURL($url) {
-    $this->db->query('INSERT INTO search (url, requesterIP) VALUES ("'.$url.'", "'.getUserIP().'")');
+    $this->db->query('INSERT INTO search (url, requesterIP) VALUES ("'.$this->db->real_escape_string($url).'", "'.$this->db->real_escape_string(getUserIP()).'")');
     return $this->db->insert_id;
   }
 
@@ -77,11 +77,11 @@ class Database {
   public function insertTraceroute($searchID, $data) {
     if (array_key_exists('message', $data)) {
       $this->db->query('INSERT INTO hops (searchID, message)
-      VALUES ("'.$searchID.'", "'.$data['message'].'")');
+      VALUES ("'.$this->db->real_escape_string($searchID).'", "'.$this->db->real_escape_string($data['message']).'")');
     } else {
       $this->db->query('INSERT INTO hops (searchID, hopNumber, hostname, ip, rtt1, rtt2, rtt3)
-      VALUES ("'.$searchID.'", "'.$data['hopNumber'].'", "'.$data['hostname'].'", "'.$data['ip'].'", "'.$data['rtt1'].'", "'.$data['rtt2'].'", "'.$data['rtt3'].'")
-      ON DUPLICATE KEY UPDATE hopNumber = "'.$data['hopNumber'].'", hostname = "'.$data['hostname'].'", ip = "'.$data['ip'].'", rtt1= "'.$data['rtt1'].'", rtt2 = "'.$data['rtt2'].'", rtt3 = "'.$data['rtt3'].'"');
+      VALUES ("'.$this->db->real_escape_string($searchID).'", "'.$this->db->real_escape_string($data['hopNumber']).'", "'.$this->db->real_escape_string($data['hostname']).'", "'.$this->db->real_escape_string($data['ip']).'", "'.$this->db->real_escape_string($data['rtt1']).'", "'.$this->db->real_escape_string($data['rtt2']).'", "'.$this->db->real_escape_string($data['rtt3']).'")
+      ON DUPLICATE KEY UPDATE hopNumber = "'.$this->db->real_escape_string($data['hopNumber']).'", hostname = "'.$this->db->real_escape_string($data['hostname']).'", ip = "'.$this->db->real_escape_string($data['ip']).'", rtt1= "'.$this->db->real_escape_string($data['rtt1']).'", rtt2 = "'.$this->db->real_escape_string($data['rtt2']).'", rtt3 = "'.$this->db->real_escape_string($data['rtt3']).'"');
       $this->requestIPLocation($data['hostname'], $data['ip']);
     }
   }
@@ -98,11 +98,11 @@ class Database {
 
     if($result['status'] !== 'fail') {
       $result = $this->db->query('INSERT INTO ip_locations (ip, hostname, asn, city, country, countryCode, isp, org, region, regionName, timezone, zip, longitude, latitude,status)
-      VALUES ("'.$result['query'].'", "'.$hostname.'", "'.$result['as'].'", "'.$result['city'].'", "'.$result['country'].'", "'.$result['countryCode'].'", "'.$result['isp'].'", "'.$result['org'].'",
-      "'.$result['region'].'", "'.$result['regionName'].'", "'.$result['timezone'].'", "'.$result['zip'].'", "'.$result['lon'].'", "'.$result['lat'].'", 1)');
+      VALUES ("'.$this->db->real_escape_string($result['query']).'", "'.$this->db->real_escape_string($hostname).'", "'.$this->db->real_escape_string($result['as']).'", "'.$this->db->real_escape_string($result['city']).'", "'.$this->db->real_escape_string($result['country']).'", "'.$this->db->real_escape_string($result['countryCode']).'", "'.$this->db->real_escape_string($result['isp']).'", "'.$this->db->real_escape_string($result['org']).'",
+      "'.$this->db->real_escape_string($result['region']).'", "'.$this->db->real_escape_string($result['regionName']).'", "'.$this->db->real_escape_string($result['timezone']).'", "'.$this->db->real_escape_string($result['zip']).'", "'.$this->db->real_escape_string($result['lon']).'", "'.$this->db->real_escape_string($result['lat']).'", 1)');
     } else {
       $result = $this->db->query('INSERT INTO ip_locations (ip, hostname, status)
-      VALUES ("'.$ip.'", "'.$hostname.'", 0)');
+      VALUES ("'.$this->db->real_escape_string($ip).'", "'.$this->db->real_escape_string($hostname).'", 0)');
     }
   }
 
