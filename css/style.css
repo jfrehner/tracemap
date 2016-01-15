@@ -329,6 +329,12 @@ input:hover {
   border-top: 1px solid #ccc;
 }
 
+#view-statistics thead tr.hover:first-child,
+#view-statistics thead tr:hover:first-child {
+  background-color: inherit;
+  color: inherit;
+}
+
 #view-statistics tr.hover,
 #view-statistics tr:hover {
   background-color: #3E9FFF;
