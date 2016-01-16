@@ -283,9 +283,23 @@ $(document).ready(function() {
       $('#submitBtn').css('background-color', '#3E9FFF');
       $('#submitBtn').html('Trace it!');
       $('#submitBtn').prop('disabled', false);
-      $('#submitBtn').css('margin-left', 'auto');
-      $('#cancelBtn').removeClass('show-button');
-      $('#cancelBtn').addClass('hide-button');
+      var inputW = $('#tm-search input').width();
+      var submitW = $('#submitBtn').width();
+      var margL = (inputW/2) - (submitW/2);
+      $('#cancelBtn').css('position', 'relative');
+      $('#cancelBtn').animate({
+        opacity: "0"
+      }, 100, function() {
+        $('#cancelBtn').removeClass('show-button');
+        $('#cancelBtn').addClass('hide-button');
+        $('#cancelBtn').css('position', 'relative');
+        $('#cancelBtn').css('top', '0');
+      });
+      $('#submitBtn').animate({
+        marginLeft: margL
+      }, 200, function() {
+        $('#submitBtn').css('margin-left', 'auto');
+      });
       $('#tm-search input').prop('disabled', false);
       $('#tm-search input').css('color', '#000');
     }
@@ -567,8 +581,20 @@ $(document).ready(function() {
       /**
        * Display the cancel button
        */
-      $('#cancelBtn').removeClass('hide-button');
-      $('#cancelBtn').addClass('show-button');
+       //$('#cancelBtn').css('position', 'relative');
+       $('#cancelBtn').addClass('show-button');
+       $('#cancelBtn').removeClass('hide-button');
+       $('#cancelBtn').animate({
+         opacity: "1.0"
+       }, 200, function() {
+         console.log('animated');
+       });
+       $('#submitBtn').animate({
+         marginLeft: 0
+       }, 200);
+
+      // $('#cancelBtn').removeClass('hide-button');
+      // $('#cancelBtn').addClass('show-button');
 
       /**
        * Click-Event-Listener on the cancel button.
@@ -579,7 +605,7 @@ $(document).ready(function() {
         resetSubmitAndCancelButton();
       });
 
-      $(this).css('margin-left', '0');
+      //$(this).css('margin-left', '0');
 
       $('#tm-search input').prop('disabled', true);
       $('#tm-search input').css('color', '#aaa');

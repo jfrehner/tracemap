@@ -208,6 +208,8 @@ input:hover {
 
 #cancelBtn.show-button {
   float: right;
+  display: inline;
+  position: relative;
   display: inline-block;
   background: red;
   border: none;
